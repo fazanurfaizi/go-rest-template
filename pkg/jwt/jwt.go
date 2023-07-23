@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/fazanurfaizi/go-rest-template/internal/models"
+	"github.com/fazanurfaizi/go-rest-template/internal/auth/models"
 )
 
 type JWTService interface {
