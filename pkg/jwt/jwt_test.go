@@ -3,8 +3,8 @@ package jwt
 import (
 	"testing"
 
-	"github.com/fazanurfaizi/go-rest-template/internal/auth/models"
 	baseModel "github.com/fazanurfaizi/go-rest-template/internal/models"
+	authModels "github.com/fazanurfaizi/go-rest-template/internal/models/auth"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
@@ -21,7 +21,7 @@ func TestGenerateToken(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	user := models.User{
+	user := authModels.User{
 		Name:     "tester",
 		Email:    "tester@mail.com",
 		Password: "password",

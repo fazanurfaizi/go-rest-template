@@ -8,11 +8,11 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/fazanurfaizi/go-rest-template/internal/auth/models"
+	authModels "github.com/fazanurfaizi/go-rest-template/internal/models/auth"
 )
 
 type JWTService interface {
-	GenerateToken(user *models.User) (token string, err error)
+	GenerateToken(user *authModels.User) (token string, err error)
 	ExtractJWTFromRequest(r *http.Request) (map[string]interface{}, error)
 }
 
@@ -36,7 +36,7 @@ func NewJWTService(secretKey string, issuer string, expired int) JWTService {
 	}
 }
 
-func (j *jwtService) GenerateToken(user *models.User) (token string, err error) {
+func (j *jwtService) GenerateToken(user *authModels.User) (token string, err error) {
 	claims := &Claims{
 		Email: user.Email,
 		ID:    user.ID.String(),

@@ -1,4 +1,4 @@
-package models
+package authModels
 
 import (
 	"database/sql"
