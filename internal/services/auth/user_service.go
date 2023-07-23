@@ -4,7 +4,9 @@ import (
 	baseModel "github.com/fazanurfaizi/go-rest-template/internal/models"
 	authModels "github.com/fazanurfaizi/go-rest-template/internal/models/auth"
 	authRepositories "github.com/fazanurfaizi/go-rest-template/internal/repositories/auth"
+	"github.com/fazanurfaizi/go-rest-template/pkg/core/db/postgres/filter"
 	"github.com/fazanurfaizi/go-rest-template/pkg/logger"
+	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
@@ -35,11 +37,11 @@ func (s UserService) FindById(id baseModel.BinaryUUID) (user authModels.User, er
 	return user, s.repository.First(&user, "id = ? ", id).Error
 }
 
-func (s UserService) FindAll() (response []authModels.User, total int64, err error) {
+func (s UserService) FindAll(ctx *gin.Context) (response []authModels.User, total int64, err error) {
 	var users []authModels.User
 	var count int64
 
-	err = s.repository.WithTrx(s.paginationScope).Find(&users).Offset(-1).Limit(-1).Count(&count).Error
+	err = s.repository.WithTrx(s.paginationScope).Scopes(filter.FilterByQuery(ctx, filter.ALL)).Find(&users).Offset(-1).Limit(-1).Count(&count).Error
 	if err != nil {
 		return nil, 0, err
 	}

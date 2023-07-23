@@ -23,15 +23,13 @@ func SuccessJSON(ctx *gin.Context, statusCode int, data any) {
 // JSONWithPagination json response with pagination meta function
 func JSONWithPagination(ctx *gin.Context, statusCode int, response map[string]any) {
 	limit, _ := ctx.MustGet(constants.Limit).(int64)
-	size, _ := ctx.MustGet(constants.Page).(int64)
-	page, _ := response["page"].(int64)
+	page, _ := ctx.MustGet(constants.Page).(int64)
 	total, _ := response["total"].(int64)
 
 	pagination := PaginationMeta{
-		Page:    page,
-		PerPage: size,
-		Limit:   limit,
-		Total:   total,
+		Page:  page,
+		Limit: limit,
+		Total: total,
 	}
 
 	ctx.JSON(
@@ -44,8 +42,7 @@ func JSONWithPagination(ctx *gin.Context, statusCode int, response map[string]an
 }
 
 type PaginationMeta struct {
-	Page    int64 `json:"page"`
-	PerPage int64 `json:"per_page"`
-	Limit   int64 `json:"limit"`
-	Total   int64 `json:"total"`
+	Page  int64 `json:"page"`
+	Limit int64 `json:"limit"`
+	Total int64 `json:"total"`
 }

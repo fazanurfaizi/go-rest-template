@@ -3,10 +3,11 @@ package console
 import (
 	"time"
 
+	"github.com/fazanurfaizi/go-rest-template/internal/middlewares"
+	"github.com/fazanurfaizi/go-rest-template/internal/routes"
 	"github.com/fazanurfaizi/go-rest-template/pkg/command"
 	"github.com/fazanurfaizi/go-rest-template/pkg/config"
 	"github.com/fazanurfaizi/go-rest-template/pkg/constants"
-	"github.com/fazanurfaizi/go-rest-template/pkg/core/db/postgres"
 	"github.com/fazanurfaizi/go-rest-template/pkg/core/router"
 	"github.com/fazanurfaizi/go-rest-template/pkg/logger"
 	"github.com/getsentry/sentry-go"
@@ -26,7 +27,8 @@ func (s *ServeCommand) Run() command.CommandRunner {
 		config *config.Config,
 		router router.Router,
 		logger logger.Logger,
-		database postgres.Database,
+		middleware middlewares.Middlewares,
+		route routes.Routes,
 	) {
 		logger.Info(`+-----------------------+`)
 		logger.Info(`| GO REST TEMPLATE      |`)
@@ -36,8 +38,8 @@ func (s *ServeCommand) Run() command.CommandRunner {
 		loc, _ := time.LoadLocation("Asia/Jakarta")
 		time.Local = loc
 
-		// middleware.Setup()
-		// routes.Setup()
+		middleware.Setup()
+		route.Setup()
 		// seeds.Setup()
 
 		if config.Server.Mode != constants.Dev && config.Sentry.Dsn != "" {
