@@ -1,4 +1,5 @@
 server:
+  AppName: go_rest_template
   AppVersion: 1.0.0
   Port: :5000
   PprofPort: :5555
@@ -69,6 +70,9 @@ jaeger:
   Host: localhost:6831
   ServiceName: REST_API
   LogSpans: false
+
+sentry:
+  dsn: 
 
 #aws:
 #  Endpoint: play.min.io

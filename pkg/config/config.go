@@ -1,10 +1,11 @@
 package config
 
 import (
-	"errors"
-	"log"
+	"os"
 	"time"
 
+	"github.com/fazanurfaizi/go-rest-template/pkg/logger"
+	"github.com/fazanurfaizi/go-rest-template/pkg/utils"
 	"github.com/spf13/viper"
 )
 
@@ -21,10 +22,12 @@ type Config struct {
 	Logger   Logger
 	AWS      AWS
 	Jaeger   Jaeger
+	Sentry   Sentry
 }
 
 // Server config
 type ServerConfig struct {
+	AppName           string
 	AppVersion        string
 	Port              string
 	PprofPort         string
@@ -119,32 +122,39 @@ type Jaeger struct {
 	LogSpans    bool
 }
 
-// Load config file from given path
-func LoadConfig(filename string) (*viper.Viper, error) {
+// Sentry
+type Sentry struct {
+	Dsn string
+}
+
+var globalConfig = Config{}
+
+func GetConfig() Config {
+	return globalConfig
+}
+
+func NewConfig(logger logger.Logger) *Config {
+	configPath := utils.GetConfigPath(os.Getenv("config"))
+
 	v := viper.New()
-	v.SetConfigName(filename)
-	v.AddConfigPath(".")
+	v.SetConfigFile(configPath)
+	// v.AddConfigPath("/config")
+	v.SetConfigType("yaml")
 	v.AutomaticEnv()
 
 	if err := v.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-			return nil, errors.New("config file not found")
+			logger.Fatal("config file not found", err)
+			return nil
 		}
-		return nil, err
+		logger.Fatal("cannot read configuration", err)
+		return nil
 	}
 
-	return v, nil
-}
-
-// parse config file
-func ParseConfig(v *viper.Viper) (*Config, error) {
-	var c Config
-
-	err := v.Unmarshal(&c)
+	err := v.Unmarshal(&globalConfig)
 	if err != nil {
-		log.Printf("Unable to decode into struc, %v", err)
-		return nil, err
+		logger.Fatal("environment cannot be loaded: ", err)
 	}
 
-	return &c, nil
+	return &globalConfig
 }

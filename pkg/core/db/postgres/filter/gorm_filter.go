@@ -142,8 +142,6 @@ func FilterByQuery(c *gin.Context, config int) func(db *gorm.DB) *gorm.DB {
 		modelType := reflect.TypeOf(model)
 		if model != nil && modelType.Kind() == reflect.Ptr && modelType.Elem().Kind() == reflect.Struct {
 			if config&SEARCH > 0 && params.Search != "" {
-				fmt.Print("SEARCh")
-				fmt.Print(params.Search)
 				db = expressionByField(db, params.Search, modelType.Elem(), searchField, clause.Or)
 			}
 			if config&FILTER > 0 && params.Filter != "" {

@@ -6,5 +6,5 @@ func GetConfigPath(configPath string) string {
 		return "./config/config-docker"
 	}
 
-	return "./config/config-local"
+	return "./config/config-local.yml"
 }
