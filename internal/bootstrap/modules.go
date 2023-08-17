@@ -6,6 +6,7 @@ import (
 	"github.com/fazanurfaizi/go-rest-template/internal/routes"
 	"github.com/fazanurfaizi/go-rest-template/pkg"
 	"github.com/fazanurfaizi/go-rest-template/pkg/core"
+	"github.com/fazanurfaizi/go-rest-template/pkg/core/storage"
 	"go.uber.org/fx"
 )
 
@@ -18,4 +19,5 @@ var CommonModules = fx.Options(
 	HandlerModule,
 	routes.RouteModule,
 	faker.Module,
+	storage.Module,
 )

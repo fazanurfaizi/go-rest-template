@@ -6,6 +6,7 @@ import (
 	"github.com/fazanurfaizi/go-rest-template/internal/auth/dto"
 	"github.com/fazanurfaizi/go-rest-template/internal/auth/models"
 	"github.com/fazanurfaizi/go-rest-template/internal/auth/repositories"
+	"github.com/fazanurfaizi/go-rest-template/pkg/core/storage"
 	"github.com/fazanurfaizi/go-rest-template/pkg/errors"
 	"github.com/fazanurfaizi/go-rest-template/pkg/formatter"
 	"github.com/fazanurfaizi/go-rest-template/pkg/logger"
@@ -17,13 +18,15 @@ import (
 type UserService struct {
 	logger          logger.Logger
 	repository      repositories.UserRepository
+	fileStorage     storage.FileStorage
 	paginationScope *gorm.DB
 }
 
-func NewUserService(logger logger.Logger, repository repositories.UserRepository) *UserService {
+func NewUserService(logger logger.Logger, repository repositories.UserRepository, fileStorage storage.FileStorage) *UserService {
 	return &UserService{
-		logger:     logger,
-		repository: repository,
+		logger:      logger,
+		repository:  repository,
+		fileStorage: fileStorage,
 	}
 }
 
@@ -43,7 +46,8 @@ func (s UserService) FindById(id uint) (dto.UserResponse, error) {
 		return dto.UserResponse{}, err
 	}
 
-	return dto.MappingUserResponse(user), nil
+	avatarUrl, _ := s.fileStorage.GetFile(user.Avatar)
+	return dto.MappingUserResponse(user, avatarUrl), nil
 }
 
 func (s UserService) FindByEmailAndPassword(email string, password string) (user models.User, err error) {
@@ -60,18 +64,24 @@ func (s UserService) FindAll(ctx *gin.Context) ([]dto.UserResponse, int64) {
 	var result []dto.UserResponse
 	users, total := s.repository.FindAll(ctx)
 	for _, user := range users {
-		result = append(result, dto.MappingUserResponse(user))
+		avatarUrl, _ := s.fileStorage.GetFile(user.Avatar)
+		result = append(result, dto.MappingUserResponse(user, avatarUrl))
 	}
 
 	return result, total
 }
 
-func (s UserService) Create(request dto.CreateUserRequest, file *multipart.FileHeader) (dto.UserResponse, errors.RestErr) {
+func (s UserService) Create(request dto.CreateUserRequest, file multipart.File) (dto.UserResponse, errors.RestErr) {
+	filename, errStorage := s.fileStorage.Upload(file)
+	if errStorage != nil {
+		return dto.UserResponse{}, errors.NewBadRequestError(errStorage.Error())
+	}
+
 	user := models.User{
 		Name:        request.Name,
 		Email:       request.Email,
 		Password:    request.Password,
-		Avatar:      file.Filename,
+		Avatar:      filename,
 		PhoneNumber: request.PhoneNumber,
 		Address:     request.Address,
 		City:        request.City,
@@ -90,7 +100,9 @@ func (s UserService) Create(request dto.CreateUserRequest, file *multipart.FileH
 		return dto.UserResponse{}, errors.NewBadRequestError(err.Error())
 	}
 
-	return dto.MappingUserResponse(user), nil
+	avatarUrl, _ := s.fileStorage.GetFile(user.Avatar)
+
+	return dto.MappingUserResponse(user, avatarUrl), nil
 }
 
 func (s UserService) Update(user *models.User) error {

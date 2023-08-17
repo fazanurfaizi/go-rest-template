@@ -11,18 +11,19 @@ import (
 
 // App config
 type Config struct {
-	Server   ServerConfig
-	Postgres PostgresConfig
-	Redis    RedisConfig
-	MongoDB  MongoDB
-	Cookie   Cookie
-	Store    Store
-	Session  Session
-	Metrics  Metrics
-	Logger   Logger
-	AWS      AWS
-	Jaeger   Jaeger
-	Sentry   Sentry
+	Server     ServerConfig
+	Postgres   PostgresConfig
+	Redis      RedisConfig
+	MongoDB    MongoDB
+	Cookie     Cookie
+	Store      Store
+	Session    Session
+	Metrics    Metrics
+	Logger     Logger
+	AWS        AWS
+	Jaeger     Jaeger
+	Sentry     Sentry
+	Cloudinary Cloudinary
 }
 
 // Server config
@@ -125,6 +126,14 @@ type Jaeger struct {
 // Sentry
 type Sentry struct {
 	Dsn string
+}
+
+// Cloudinary
+type Cloudinary struct {
+	CloudName    string
+	APIKey       string
+	APISecret    string
+	UploadFolder string
 }
 
 var globalConfig = Config{}

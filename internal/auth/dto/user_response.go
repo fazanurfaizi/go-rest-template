@@ -10,6 +10,7 @@ type UserResponse struct {
 	Name        string `json:"name"`
 	Email       string `json:"email"`
 	Avatar      string `json:"avatar"`
+	AvatarUrl   string `json:"avatar_url"`
 	PhoneNumber string `json:"phone_number"`
 	Address     string `json:"address"`
 	City        string `json:"city"`
@@ -21,12 +22,13 @@ type UserResponse struct {
 	UpdatedAt   string `json:"updated_at"`
 }
 
-func MappingUserResponse(user models.User) UserResponse {
+func MappingUserResponse(user models.User, avatarUrl string) UserResponse {
 	return UserResponse{
 		ID:          user.ID,
 		Name:        user.Name,
 		Email:       user.Email,
 		Avatar:      user.Avatar,
+		AvatarUrl:   avatarUrl,
 		PhoneNumber: user.PhoneNumber,
 		Address:     user.Address,
 		City:        user.City,

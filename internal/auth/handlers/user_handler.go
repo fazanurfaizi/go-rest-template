@@ -58,7 +58,7 @@ func (u *userHandler) Create(ctx *gin.Context) {
 		return
 	}
 
-	file, _ := ctx.FormFile("image")
+	file, _, _ := ctx.Request.FormFile("image")
 
 	user, err := u.service.Create(userRequest, file)
 	if err != nil {

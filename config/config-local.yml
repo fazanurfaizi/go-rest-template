@@ -74,6 +74,12 @@ jaeger:
 sentry:
   dsn: 
 
+cloudinary:
+  CloudName: dwsfpgfh4
+  APIKey: 139397713591178
+  APISecret: nAs7TTiU7B9vrBdXmXG4ap4gdyY
+  UploadFolder: go-rest
+
 #aws:
 #  Endpoint: play.min.io
 #  MinioAccessKey: Q3AM3UQ867SPQQA43P2F
