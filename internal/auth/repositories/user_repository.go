@@ -26,21 +26,23 @@ func (u UserRepository) WithTrx(trx *gorm.DB) UserRepository {
 	return u
 }
 
-func (u UserRepository) FindAll(ctx *gin.Context) ([]models.User, int64, error) {
+func (u UserRepository) FindAll(ctx *gin.Context) ([]models.User, int64) {
 	var users []models.User
 	var count int64
 
-	err := u.Model(&models.User{}).
+	u.Model(&models.User{}).
 		Scopes(filter.FilterByQuery(ctx, filter.ALL)).
 		Find(&users).
 		Offset(-1).
 		Limit(-1).
-		Count(&count).
-		Error
+		Count(&count)
 
-	if err != nil {
-		return users, 0, err
-	}
+	return users, count
+}
 
-	return users, count, nil
+func (u UserRepository) FindById(id uint) models.User {
+	var user = models.User{ID: id}
+	u.Model(user).First(&user)
+
+	return user
 }

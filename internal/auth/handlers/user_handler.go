@@ -2,15 +2,18 @@ package handlers
 
 import (
 	"net/http"
+	"strconv"
 
+	"github.com/fazanurfaizi/go-rest-template/internal/auth/dto"
 	"github.com/fazanurfaizi/go-rest-template/internal/auth/services"
-	"github.com/fazanurfaizi/go-rest-template/internal/responses"
 	"github.com/fazanurfaizi/go-rest-template/pkg/logger"
+	"github.com/fazanurfaizi/go-rest-template/pkg/utils"
 	"github.com/gin-gonic/gin"
 )
 
 type UserHandler interface {
 	Index(ctx *gin.Context)
+	Show(ctx *gin.Context)
 }
 
 type userHandler struct {
@@ -26,12 +29,23 @@ func NewUserHandler(service *services.UserService, logger logger.Logger) UserHan
 }
 
 func (u *userHandler) Index(ctx *gin.Context) {
-	users, total, err := u.service.FindAll(ctx)
-	if err != nil {
-		u.logger.Error(err)
+	var usersResponse []dto.UserResponse
+	users, total := u.service.FindAll(ctx)
+	for _, user := range users {
+		usersResponse = append(usersResponse, dto.MappingUserResponse(user))
 	}
 
-	response := map[string]any{"data": users, "total": total}
+	response := map[string]any{"data": usersResponse, "total": total}
 
-	responses.JSONWithPagination(ctx, http.StatusOK, response)
+	utils.JSONWithPagination(ctx, http.StatusOK, response)
+}
+
+func (u *userHandler) Show(ctx *gin.Context) {
+	param := ctx.Param("id")
+	id, _ := strconv.Atoi(param)
+
+	user := u.service.FindById(uint(id))
+	userResponse := dto.MappingUserResponse(user)
+
+	utils.JSON(ctx, http.StatusOK, userResponse)
 }

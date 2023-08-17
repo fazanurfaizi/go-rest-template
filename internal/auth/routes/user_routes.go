@@ -39,4 +39,5 @@ func (r *UserRoutes) Setup() {
 
 	api := r.handler.Group("/api").Use(r.rateLimitMiddleware.Handle())
 	api.GET("/users", r.PaginationMiddleware.Handle(), r.userHandler.Index)
+	api.GET("/users/:id", r.userHandler.Show)
 }

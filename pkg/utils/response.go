@@ -1,4 +1,4 @@
-package responses
+package utils
 
 import (
 	"github.com/fazanurfaizi/go-rest-template/pkg/constants"
@@ -11,13 +11,13 @@ func JSON(ctx *gin.Context, statusCode int, data any) {
 }
 
 // ErrorJSON json error response function
-func ErrorJSON(ctx *gin.Context, statusCode int, data any) {
-	ctx.JSON(statusCode, gin.H{"error": data})
+func ErrorJSON(ctx *gin.Context, statusCode int, err any) {
+	ctx.JSON(statusCode, gin.H{"error": err})
 }
 
 // SuccessJSON json success response function
-func SuccessJSON(ctx *gin.Context, statusCode int, data any) {
-	ctx.JSON(statusCode, gin.H{"message": data})
+func SuccessJSON(ctx *gin.Context, statusCode int, message any) {
+	ctx.JSON(statusCode, gin.H{"message": message})
 }
 
 // JSONWithPagination json response with pagination meta function

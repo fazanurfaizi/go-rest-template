@@ -32,8 +32,8 @@ func (s UserService) SetPaginationScope(scope func(*gorm.DB) *gorm.DB) UserServi
 	return s
 }
 
-func (s UserService) FindById(id uint) (user models.User, err error) {
-	return user, s.repository.First(&user, "id = ? ", id).Error
+func (s UserService) FindById(id uint) models.User {
+	return s.repository.FindById(id)
 }
 
 func (s UserService) FindByEmailAndPassword(email string, password string) (user models.User, err error) {
@@ -46,7 +46,7 @@ func (s UserService) FindByEmailAndPassword(email string, password string) (user
 	return user, nil
 }
 
-func (s UserService) FindAll(ctx *gin.Context) (response []models.User, total int64, err error) {
+func (s UserService) FindAll(ctx *gin.Context) ([]models.User, int64) {
 	return s.repository.FindAll(ctx)
 }
 

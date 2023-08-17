@@ -1,6 +1,7 @@
 package models
 
 import (
+	"database/sql"
 	"strings"
 	"time"
 
@@ -9,7 +10,7 @@ import (
 )
 
 type User struct {
-	*gorm.Model
+	ID          uint      `gorm:"primarykey"`
 	Name        string    `gorm:"column:name;type:varchar(255);not null" json:"name" redis:"name" validate:"required,lte=30" faker:"name" filter:"param:name;searchable;filterable"`
 	Email       string    `gorm:"type:varchar(255);uniqueIndex;no null" json:"email" faker:"email"`
 	Password    string    `gorm:"type:varchar(255)" json:"password,omitempty" redis:"password" validate:"omitempty,required,gte=6" faker:"password"`
@@ -21,6 +22,9 @@ type User struct {
 	Gender      string    `gorm:"type:varchar(255)" json:"gender,omitempty" redis:"gender" validate:"omitempty,lte=10"`
 	Postcode    string    `gorm:"type:varchar(10)" json:"postcode,omitempty" redis:"postcode" validate:"omitempty"`
 	Birthday    time.Time `gorm:"type:time" json:"birthday,omitempty" redis:"birthday" validate:"omitempty,lte=10" faker:"time"`
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+	DeletedAt   sql.NullTime `gorm:"index"`
 }
 
 func (u *User) TableName() string {
