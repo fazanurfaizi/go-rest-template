@@ -2,7 +2,7 @@ package faker
 
 import (
 	"github.com/brianvoe/gofakeit/v6"
-	authModels "github.com/fazanurfaizi/go-rest-template/internal/models/auth"
+	"github.com/fazanurfaizi/go-rest-template/internal/auth/models"
 	"github.com/fazanurfaizi/go-rest-template/pkg/core/db/postgres"
 	"github.com/fazanurfaizi/go-rest-template/pkg/logger"
 )
@@ -24,7 +24,7 @@ func (f UserFaker) Setup() {
 
 	// var users []authModels.User
 	// _ = faker.FakeData(&sample)
-	var user authModels.User
+	var user models.User
 	gofakeit.Struct(&user)
 	// for i := 0; i < 100; i++ {
 	// }

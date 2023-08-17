@@ -1,10 +1,10 @@
-package authHandler
+package handlers
 
 import (
 	"net/http"
 
+	"github.com/fazanurfaizi/go-rest-template/internal/auth/services"
 	"github.com/fazanurfaizi/go-rest-template/internal/responses"
-	authServices "github.com/fazanurfaizi/go-rest-template/internal/services/auth"
 	"github.com/fazanurfaizi/go-rest-template/pkg/logger"
 	"github.com/gin-gonic/gin"
 )
@@ -14,11 +14,11 @@ type UserHandler interface {
 }
 
 type userHandler struct {
-	service *authServices.UserService
+	service *services.UserService
 	logger  logger.Logger
 }
 
-func NewUserHandler(service *authServices.UserService, logger logger.Logger) UserHandler {
+func NewUserHandler(service *services.UserService, logger logger.Logger) UserHandler {
 	return &userHandler{
 		service: service,
 		logger:  logger,

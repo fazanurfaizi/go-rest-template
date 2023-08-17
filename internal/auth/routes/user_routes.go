@@ -1,7 +1,7 @@
-package authRoutes
+package routes
 
 import (
-	authHandler "github.com/fazanurfaizi/go-rest-template/internal/handlers/api/auth"
+	"github.com/fazanurfaizi/go-rest-template/internal/auth/handlers"
 	"github.com/fazanurfaizi/go-rest-template/internal/middlewares"
 	"github.com/fazanurfaizi/go-rest-template/pkg/core/router"
 	"github.com/fazanurfaizi/go-rest-template/pkg/logger"
@@ -10,7 +10,7 @@ import (
 type UserRoutes struct {
 	logger      logger.Logger
 	handler     router.Router
-	userHandler authHandler.UserHandler
+	userHandler handlers.UserHandler
 	// authMiddleware       middlewares.AuthMiddleware
 	PaginationMiddleware middlewares.PaginationMiddleware
 	rateLimitMiddleware  middlewares.RateLimitMiddleware
@@ -19,7 +19,7 @@ type UserRoutes struct {
 func NewUserRoutes(
 	logger logger.Logger,
 	handler router.Router,
-	userHandler authHandler.UserHandler,
+	userHandler handlers.UserHandler,
 	// authMiddleware middlewares.AuthMiddleware,
 	pagination middlewares.PaginationMiddleware,
 	rateLimitMiddleware middlewares.RateLimitMiddleware,

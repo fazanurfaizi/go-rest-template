@@ -1,18 +1,15 @@
-package authModels
+package models
 
 import (
-	"database/sql"
 	"strings"
 	"time"
 
-	"github.com/fazanurfaizi/go-rest-template/internal/models"
 	"github.com/fazanurfaizi/go-rest-template/pkg/utils"
-	uuid "github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 type User struct {
-	models.BaseModel
+	*gorm.Model
 	Name        string    `gorm:"type:varchar(255);not null" json:"name" redis:"name" validate:"required,lte=30" faker:"name"`
 	Email       string    `gorm:"type:varchar(255);uniqueIndex;no null" json:"email" faker:"email"`
 	Password    string    `gorm:"type:varchar(255)" json:"password,omitempty" redis:"password" validate:"omitempty,required,gte=6" faker:"password"`
@@ -24,9 +21,6 @@ type User struct {
 	Gender      string    `gorm:"type:varchar(255)" json:"gender,omitempty" redis:"gender" validate:"omitempty,lte=10"`
 	Postcode    string    `gorm:"type:varchar(10)" json:"postcode,omitempty" redis:"postcode" validate:"omitempty"`
 	Birthday    time.Time `gorm:"type:time" json:"birthday,omitempty" redis:"birthday" validate:"omitempty,lte=10" faker:"time"`
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
-	DeletedAt   sql.NullTime `gorm:"index"`
 }
 
 func (u *User) TableName() string {
@@ -53,8 +47,6 @@ func (u *User) ComparePassword(password string) (bool, error) {
 }
 
 func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
-	id, err := uuid.NewRandom()
-	u.ID = models.BinaryUUID(id)
 	u.Email = strings.ToLower(strings.TrimSpace(u.Email))
 	u.Password = strings.TrimSpace(u.Password)
 

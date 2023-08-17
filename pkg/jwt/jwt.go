@@ -8,17 +8,17 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	authModels "github.com/fazanurfaizi/go-rest-template/internal/models/auth"
+	"github.com/fazanurfaizi/go-rest-template/internal/auth/models"
 )
 
 type JWTService interface {
-	GenerateToken(user *authModels.User) (token string, err error)
+	GenerateToken(user *models.User) (token string, err error)
 	ExtractJWTFromRequest(r *http.Request) (map[string]interface{}, error)
 }
 
 type Claims struct {
 	Email string `json:"email"`
-	ID    string `json:"id"`
+	ID    int    `json:"id"`
 	jwt.StandardClaims
 }
 
@@ -36,10 +36,10 @@ func NewJWTService(secretKey string, issuer string, expired int) JWTService {
 	}
 }
 
-func (j *jwtService) GenerateToken(user *authModels.User) (token string, err error) {
+func (j *jwtService) GenerateToken(user *models.User) (token string, err error) {
 	claims := &Claims{
 		Email: user.Email,
-		ID:    user.ID.String(),
+		ID:    1,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(time.Hour * time.Duration(j.expired)).Unix(),
 			Issuer:    j.issuer,

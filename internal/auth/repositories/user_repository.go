@@ -1,4 +1,4 @@
-package authRepositories
+package repositories
 
 import (
 	"github.com/fazanurfaizi/go-rest-template/pkg/core/db/postgres"

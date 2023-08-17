@@ -8,8 +8,6 @@ import (
 	"reflect"
 	"strconv"
 	"time"
-
-	"github.com/fazanurfaizi/go-rest-template/internal/models"
 )
 
 // CustomBind custom bind the data
@@ -39,11 +37,11 @@ func CustomBind(source *http.Request, dest any) error {
 		currentField := destType.Elem().Field(i)
 		fieldValue := destValue.Elem().Field(i)
 
-		if currentField.Type == reflect.TypeOf(models.BaseModel{}) {
-			if err := CustomBind(source, fieldValue.Addr().Interface()); err != nil {
-				return err
-			}
-		}
+		// if currentField.Type == reflect.TypeOf(interface) {
+		// 	if err := CustomBind(source, fieldValue.Addr().Interface()); err != nil {
+		// 		return err
+		// 	}
+		// }
 
 		key := currentField.Tag.Get("form")
 		if key == "" {
