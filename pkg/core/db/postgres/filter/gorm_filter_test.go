@@ -130,7 +130,7 @@ func (s *TestSuite) TestFiltersPaginateOnly() {
 	ctx := gin.Context{}
 	ctx.Request = &http.Request{
 		URL: &url.URL{
-			RawQuery: "page=2&per_page=10",
+			RawQuery: "order_by=id&order_dir=desc&page=2&per_page=10",
 		},
 	}
 
@@ -146,7 +146,7 @@ func (t *TestSuite) TestFiltersOrderBy() {
 	ctx := gin.Context{}
 	ctx.Request = &http.Request{
 		URL: &url.URL{
-			RawQuery: "order_by=Email&order_direction=asc",
+			RawQuery: "order_by=Email&order_dir=asc",
 		},
 	}
 

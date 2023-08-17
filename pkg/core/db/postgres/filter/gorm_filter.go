@@ -18,7 +18,7 @@ type queryParams struct {
 	PageSize       int    `form:"page_size,default=10"`
 	All            bool   `form:"all,default=false"`
 	OrderBy        string `form:"order_by,default=created_at"`
-	OrderDirection string `form:"order_direction,default=desc,oneof=desc asc"`
+	OrderDirection string `form:"order_dir,default=desc,oneof=desc asc"`
 }
 
 const (

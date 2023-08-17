@@ -10,7 +10,7 @@ import (
 
 type User struct {
 	*gorm.Model
-	Name        string    `gorm:"type:varchar(255);not null" json:"name" redis:"name" validate:"required,lte=30" faker:"name"`
+	Name        string    `gorm:"column:name;type:varchar(255);not null" json:"name" redis:"name" validate:"required,lte=30" faker:"name" filter:"param:name;searchable;filterable"`
 	Email       string    `gorm:"type:varchar(255);uniqueIndex;no null" json:"email" faker:"email"`
 	Password    string    `gorm:"type:varchar(255)" json:"password,omitempty" redis:"password" validate:"omitempty,required,gte=6" faker:"password"`
 	Avatar      string    `gorm:"type:varchar(255)" json:"avatar,omitempty" redis:"avatar" validate:"omitempty,lte=512,url" faker:"url"`

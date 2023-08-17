@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 
+	authModels "github.com/fazanurfaizi/go-rest-template/internal/auth/models"
 	"github.com/fazanurfaizi/go-rest-template/pkg/config"
 	"github.com/fazanurfaizi/go-rest-template/pkg/core/db/postgres"
 	"github.com/fazanurfaizi/go-rest-template/pkg/logger"
@@ -20,6 +21,6 @@ func main() {
 		database.Exec(fmt.Sprintf("CREATE SCHEMA IF NOT EXISTS %s;", schema))
 	}
 
-	// database.AutoMigrate(&authModels.User{})
+	database.AutoMigrate(&authModels.User{})
 	log.Println("Migration complete")
 }

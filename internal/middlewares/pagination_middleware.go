@@ -20,7 +20,7 @@ func (p PaginationMiddleware) Handle() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		p.logger.Info("Setting up pagination middleware")
 
-		perPage, err := strconv.ParseInt(ctx.Query("per_page"), 10, 0)
+		perPage, err := strconv.ParseInt(ctx.Query("page_size"), 10, 0)
 		if err != nil {
 			perPage = 10
 		}

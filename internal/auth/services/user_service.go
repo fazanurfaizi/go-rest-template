@@ -3,7 +3,6 @@ package services
 import (
 	"github.com/fazanurfaizi/go-rest-template/internal/auth/models"
 	"github.com/fazanurfaizi/go-rest-template/internal/auth/repositories"
-	"github.com/fazanurfaizi/go-rest-template/pkg/core/db/postgres/filter"
 	"github.com/fazanurfaizi/go-rest-template/pkg/logger"
 	"github.com/fazanurfaizi/go-rest-template/pkg/utils"
 	"github.com/gin-gonic/gin"
@@ -48,15 +47,7 @@ func (s UserService) FindByEmailAndPassword(email string, password string) (user
 }
 
 func (s UserService) FindAll(ctx *gin.Context) (response []models.User, total int64, err error) {
-	var users []models.User
-	var count int64
-
-	err = s.repository.WithTrx(s.paginationScope).Scopes(filter.FilterByQuery(ctx, filter.ALL)).Find(&users).Offset(-1).Limit(-1).Count(&count).Error
-	if err != nil {
-		return nil, 0, err
-	}
-
-	return users, count, nil
+	return s.repository.FindAll(ctx)
 }
 
 func (s UserService) Create(user *models.User) error {

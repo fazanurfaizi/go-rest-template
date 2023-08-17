@@ -15,7 +15,14 @@ type Database struct {
 
 func NewConnection(config *config.Config) Database {
 	var err error
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Jakarta", config.Postgres.PostgresqlHost, config.Postgres.PostgresqlUser, config.Postgres.PostgresqlPassword, config.Postgres.PostgresqlDbName, config.Postgres.PostgresqlPort)
+	dsn := fmt.Sprintf(
+		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Jakarta",
+		config.Postgres.PostgresqlHost,
+		config.Postgres.PostgresqlUser,
+		config.Postgres.PostgresqlPassword,
+		config.Postgres.PostgresqlDbName,
+		config.Postgres.PostgresqlPort,
+	)
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
