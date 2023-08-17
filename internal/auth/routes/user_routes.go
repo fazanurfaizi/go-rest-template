@@ -38,6 +38,8 @@ func (r *UserRoutes) Setup() {
 	r.logger.Info("Setting up user routes")
 
 	api := r.handler.Group("/api").Use(r.rateLimitMiddleware.Handle())
+	r.handler.MaxMultipartMemory = 8 << 20
 	api.GET("/users", r.PaginationMiddleware.Handle(), r.userHandler.Index)
 	api.GET("/users/:id", r.userHandler.Show)
+	api.POST("/users", r.userHandler.Create)
 }

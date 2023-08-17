@@ -15,3 +15,9 @@ func FormatTime(value time.Time, format string) string {
 	utc := date.UTC()
 	return utc.Format(format)
 }
+
+// Parse string to time
+func ParseStringToTime(value string, format string) time.Time {
+	date, _ := time.Parse(format, value)
+	return date
+}

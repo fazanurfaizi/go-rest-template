@@ -1,8 +1,13 @@
 package services
 
 import (
+	"mime/multipart"
+
+	"github.com/fazanurfaizi/go-rest-template/internal/auth/dto"
 	"github.com/fazanurfaizi/go-rest-template/internal/auth/models"
 	"github.com/fazanurfaizi/go-rest-template/internal/auth/repositories"
+	"github.com/fazanurfaizi/go-rest-template/pkg/errors"
+	"github.com/fazanurfaizi/go-rest-template/pkg/formatter"
 	"github.com/fazanurfaizi/go-rest-template/pkg/logger"
 	"github.com/fazanurfaizi/go-rest-template/pkg/utils"
 	"github.com/gin-gonic/gin"
@@ -32,8 +37,13 @@ func (s UserService) SetPaginationScope(scope func(*gorm.DB) *gorm.DB) UserServi
 	return s
 }
 
-func (s UserService) FindById(id uint) models.User {
-	return s.repository.FindById(id)
+func (s UserService) FindById(id uint) (dto.UserResponse, error) {
+	user, err := s.repository.FindById(id)
+	if err != nil {
+		return dto.UserResponse{}, err
+	}
+
+	return dto.MappingUserResponse(user), nil
 }
 
 func (s UserService) FindByEmailAndPassword(email string, password string) (user models.User, err error) {
@@ -46,12 +56,41 @@ func (s UserService) FindByEmailAndPassword(email string, password string) (user
 	return user, nil
 }
 
-func (s UserService) FindAll(ctx *gin.Context) ([]models.User, int64) {
-	return s.repository.FindAll(ctx)
+func (s UserService) FindAll(ctx *gin.Context) ([]dto.UserResponse, int64) {
+	var result []dto.UserResponse
+	users, total := s.repository.FindAll(ctx)
+	for _, user := range users {
+		result = append(result, dto.MappingUserResponse(user))
+	}
+
+	return result, total
 }
 
-func (s UserService) Create(user *models.User) error {
-	return s.repository.Create(&user).Error
+func (s UserService) Create(request dto.CreateUserRequest, file *multipart.FileHeader) (dto.UserResponse, errors.RestErr) {
+	user := models.User{
+		Name:        request.Name,
+		Email:       request.Email,
+		Password:    request.Password,
+		Avatar:      file.Filename,
+		PhoneNumber: request.PhoneNumber,
+		Address:     request.Address,
+		City:        request.City,
+		Country:     request.Country,
+		Gender:      request.Gender,
+		Postcode:    request.Postcode,
+		Birthday:    formatter.ParseStringToTime(request.Birthday, formatter.YYYYMMDDhhmmss),
+	}
+	err := user.HashPassword()
+	if err != nil {
+		return dto.UserResponse{}, errors.NewInternalServerError("error while hashing password")
+	}
+
+	err = s.repository.Create(&user)
+	if err != nil {
+		return dto.UserResponse{}, errors.NewBadRequestError(err.Error())
+	}
+
+	return dto.MappingUserResponse(user), nil
 }
 
 func (s UserService) Update(user *models.User) error {

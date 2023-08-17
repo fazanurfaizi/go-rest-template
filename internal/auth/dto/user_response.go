@@ -7,18 +7,18 @@ import (
 
 type UserResponse struct {
 	ID          uint   `json:"id"`
-	Name        string `json:"name,omitempty"`
-	Email       string `json:"email,omitempty"`
-	Avatar      string `json:"avatar,omitempty"`
-	PhoneNumber string `json:"phone_number,omitempty"`
-	Address     string `json:"address,omitempty"`
-	City        string `json:"city,omitempty"`
-	Country     string `json:"country,omitempty"`
-	Gender      string `json:"gender,omitempty"`
-	Postcode    string `json:"postcode,omitempty"`
-	Birthday    string `json:"birthday,omitempty"`
-	CreatedAt   string `json:"created_at,omitempty"`
-	UpdatedAt   string `json:"updated_at,omitempty"`
+	Name        string `json:"name"`
+	Email       string `json:"email"`
+	Avatar      string `json:"avatar"`
+	PhoneNumber string `json:"phone_number"`
+	Address     string `json:"address"`
+	City        string `json:"city"`
+	Country     string `json:"country"`
+	Gender      string `json:"gender"`
+	Postcode    string `json:"postcode"`
+	Birthday    string `json:"birthday"`
+	CreatedAt   string `json:"created_at"`
+	UpdatedAt   string `json:"updated_at"`
 }
 
 func MappingUserResponse(user models.User) UserResponse {

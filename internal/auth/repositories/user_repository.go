@@ -40,9 +40,21 @@ func (u UserRepository) FindAll(ctx *gin.Context) ([]models.User, int64) {
 	return users, count
 }
 
-func (u UserRepository) FindById(id uint) models.User {
+func (u UserRepository) FindById(id uint) (models.User, error) {
 	var user = models.User{ID: id}
-	u.Model(user).First(&user)
+	err := u.Model(user).First(&user).Error
+	if err != nil {
+		return models.User{}, err
+	}
 
-	return user
+	return user, nil
+}
+
+func (u UserRepository) Create(user *models.User) error {
+	err := u.Model(user).Save(&user).Error
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

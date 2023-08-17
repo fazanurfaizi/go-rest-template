@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"net/http"
+
 	"github.com/fazanurfaizi/go-rest-template/pkg/constants"
 	"github.com/gin-gonic/gin"
 )
@@ -16,8 +18,8 @@ func ErrorJSON(ctx *gin.Context, statusCode int, err any) {
 }
 
 // SuccessJSON json success response function
-func SuccessJSON(ctx *gin.Context, statusCode int, message any) {
-	ctx.JSON(statusCode, gin.H{"message": message})
+func SuccessJSON(ctx *gin.Context, statusCode int, message any, data any) {
+	ctx.JSON(statusCode, gin.H{"message": message, "data": data})
 }
 
 // JSONWithPagination json response with pagination meta function
@@ -39,6 +41,16 @@ func JSONWithPagination(ctx *gin.Context, statusCode int, response map[string]an
 			"pagination": pagination,
 		},
 	)
+}
+
+// ValidationErrorJSON json error validation response function
+func ValidationErrorJSON(ctx *gin.Context, err error) {
+	// validationErrors := make(map[string]string)
+	// for _, e := range err.(validator.ValidationErrors) {
+	// 	validationErrors[e.Field()] = e.Error()
+	// }
+
+	ErrorJSON(ctx, http.StatusBadRequest, err.Error())
 }
 
 type PaginationMeta struct {
