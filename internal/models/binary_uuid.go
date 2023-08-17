@@ -46,7 +46,7 @@ func (b *BinaryUUID) UnmarshalJSON(by []byte) error {
 
 // GormDataType sql data tyoe for gorm
 func (BinaryUUID) GormDataType() string {
-	return "binary(16)"
+	return "uuid"
 }
 
 // Scan scan value into BinaryUUID

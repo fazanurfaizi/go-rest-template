@@ -1,6 +1,7 @@
 package bootstrap
 
 import (
+	"github.com/fazanurfaizi/go-rest-template/database/faker"
 	handlerApi "github.com/fazanurfaizi/go-rest-template/internal/handlers/api"
 	"github.com/fazanurfaizi/go-rest-template/internal/middlewares"
 	"github.com/fazanurfaizi/go-rest-template/internal/repositories"
@@ -19,4 +20,5 @@ var CommonModules = fx.Options(
 	services.Module,
 	handlerApi.Module,
 	routes.Module,
+	faker.Module,
 )

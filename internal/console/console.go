@@ -11,6 +11,7 @@ import (
 
 var cmds = map[string]command.Command{
 	"app:serve": NewServeCommand(),
+	"db:faker":  NewFakerCommand(),
 }
 
 // GetSubCommands gives a list of sub commands
