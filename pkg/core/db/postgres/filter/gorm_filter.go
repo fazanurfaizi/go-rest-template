@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/fazanurfaizi/go-rest-template/pkg/converter"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -28,11 +29,6 @@ const (
 	ORDER_BY = 8  // Order response by column_name
 	ALL      = 15 // Equivalent to SEARCH|FILTER|PAGINATE|ORDER_BY
 	tagKey   = "filter"
-)
-
-var (
-	columnNameRegexp = regexp.MustCompile(`(?m)column:(\w{1,}).*`)
-	paramNameRegexp  = regexp.MustCompile(`(?m)param:(\w{1,}).*`)
 )
 
 func orderBy(db *gorm.DB, params queryParams) *gorm.DB {
@@ -62,18 +58,9 @@ func paginate(db *gorm.DB, params queryParams) *gorm.DB {
 	return db.Offset(offset).Limit(params.PageSize)
 }
 
-func getColumnNameForField(field reflect.StructField) string {
-	fieldTag := field.Tag.Get("gorm")
-	res := columnNameRegexp.FindStringSubmatch(fieldTag)
-	if len(res) == 2 {
-		return res[1]
-	}
-	return field.Name
-}
-
 func searchField(field reflect.StructField, phrase string) clause.Expression {
 	filterTag := field.Tag.Get(tagKey)
-	columnName := getColumnNameForField(field)
+	columnName := converter.GetColumnNameForField(field)
 	if strings.Contains(filterTag, "searchable") {
 		return clause.Like{Column: columnName, Value: "%" + phrase + "%"}
 	}
@@ -86,8 +73,8 @@ func filterField(field reflect.StructField, phrase string) clause.Expression {
 		return nil
 	}
 
-	columnName := getColumnNameForField(field)
-	paramMatch := paramNameRegexp.FindStringSubmatch(field.Tag.Get(tagKey))
+	columnName := converter.GetColumnNameForField(field)
+	paramMatch := converter.ParamNameRegexp.FindStringSubmatch(field.Tag.Get(tagKey))
 	if len(paramMatch) == 2 {
 		paramName = paramMatch[1]
 	} else {
