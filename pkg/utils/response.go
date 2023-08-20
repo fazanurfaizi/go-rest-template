@@ -47,13 +47,16 @@ func JSONWithPagination(ctx *gin.Context, statusCode int, response map[string]an
 
 // ValidationErrorJSON json error validation response function
 func ValidationErrorJSON(ctx *gin.Context, err error) {
-	validationErrors := make(map[string]string)
+	validationErrors := make(map[string]interface{})
 	for _, e := range err.(validator.ValidationErrors) {
 		validationErrors[e.Field()] = e.Error()
 	}
 
 	jsonErrors, _ := json.Marshal(validationErrors)
-	ErrorJSON(ctx, http.StatusBadRequest, string(jsonErrors))
+	r := make(map[string]interface{})
+	_ = json.Unmarshal([]byte(jsonErrors), &r)
+
+	ErrorJSON(ctx, http.StatusBadRequest, r)
 }
 
 type PaginationMeta struct {
