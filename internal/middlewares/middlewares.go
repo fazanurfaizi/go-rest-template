@@ -6,6 +6,7 @@ var Module = fx.Options(
 	fx.Provide(NewDBTransactionMiddleware),
 	fx.Provide(NewPaginationMiddleware),
 	fx.Provide(NewRateLimitMiddleware),
+	fx.Provide(NewJsonMiddleware),
 	fx.Provide(NewMiddlewares),
 )
 

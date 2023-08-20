@@ -3,6 +3,7 @@ package utils
 import (
 	"encoding/json"
 	"net/http"
+	"strings"
 
 	"github.com/fazanurfaizi/go-rest-template/pkg/constants"
 	"github.com/gin-gonic/gin"
@@ -11,17 +12,17 @@ import (
 
 // JSON json response function
 func JSON(ctx *gin.Context, statusCode int, data any) {
-	ctx.JSON(statusCode, gin.H{"data": data})
+	ctx.IndentedJSON(statusCode, gin.H{"data": data})
 }
 
 // ErrorJSON json error response function
 func ErrorJSON(ctx *gin.Context, statusCode int, err any) {
-	ctx.JSON(statusCode, gin.H{"error": err})
+	ctx.IndentedJSON(statusCode, gin.H{"error": err})
 }
 
 // SuccessJSON json success response function
 func SuccessJSON(ctx *gin.Context, statusCode int, message any, data any) {
-	ctx.JSON(statusCode, gin.H{"message": message, "data": data})
+	ctx.IndentedJSON(statusCode, gin.H{"message": message, "data": data})
 }
 
 // JSONWithPagination json response with pagination meta function
@@ -49,7 +50,7 @@ func JSONWithPagination(ctx *gin.Context, statusCode int, response map[string]an
 func ValidationErrorJSON(ctx *gin.Context, err error) {
 	validationErrors := make(map[string]interface{})
 	for _, e := range err.(validator.ValidationErrors) {
-		validationErrors[e.Field()] = e.Error()
+		validationErrors[strings.ToLower(e.Field())] = e.Error()
 	}
 
 	jsonErrors, _ := json.Marshal(validationErrors)
