@@ -3,6 +3,7 @@ package router
 import (
 	"net/http"
 
+	"github.com/fazanurfaizi/go-rest-template/internal/middlewares"
 	"github.com/fazanurfaizi/go-rest-template/pkg/config"
 	"github.com/fazanurfaizi/go-rest-template/pkg/constants"
 	"github.com/fazanurfaizi/go-rest-template/pkg/logger"
@@ -41,6 +42,9 @@ func NewRouter(config *config.Config, logger logger.Logger) Router {
 		AllowHeaders:     []string{"*"},
 		AllowCredentials: true,
 	}))
+
+	// Set default response to JSON
+	httpRouter.Use(middlewares.NewJsonMiddleware().Handle())
 
 	// attach sentry middleware
 	httpRouter.Use(sentrygin.New(sentrygin.Options{

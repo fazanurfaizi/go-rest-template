@@ -12,7 +12,6 @@ type UserRoutes struct {
 	handler     router.Router
 	userHandler handlers.UserHandler
 	// authMiddleware       middlewares.AuthMiddleware
-	JsonMiddleware       middlewares.JsonMiddleware
 	PaginationMiddleware middlewares.PaginationMiddleware
 	rateLimitMiddleware  middlewares.RateLimitMiddleware
 }
@@ -22,7 +21,6 @@ func NewUserRoutes(
 	handler router.Router,
 	userHandler handlers.UserHandler,
 	// authMiddleware middlewares.AuthMiddleware,
-	JsonMiddleware middlewares.JsonMiddleware,
 	pagination middlewares.PaginationMiddleware,
 	rateLimitMiddleware middlewares.RateLimitMiddleware,
 ) *UserRoutes {
@@ -31,7 +29,6 @@ func NewUserRoutes(
 		handler:     handler,
 		userHandler: userHandler,
 		// authMiddleware:       authMiddleware,
-		JsonMiddleware:       JsonMiddleware,
 		PaginationMiddleware: pagination,
 		rateLimitMiddleware:  rateLimitMiddleware,
 	}
@@ -40,7 +37,7 @@ func NewUserRoutes(
 func (r *UserRoutes) Setup() {
 	r.logger.Info("Setting up user routes")
 
-	api := r.handler.Group("/api").Use(r.JsonMiddleware.Handle()).Use(r.rateLimitMiddleware.Handle())
+	api := r.handler.Group("/api").Use(r.rateLimitMiddleware.Handle())
 	r.handler.MaxMultipartMemory = 8 << 20
 	api.GET("/users", r.PaginationMiddleware.Handle(), r.userHandler.Index)
 	api.GET("/users/:id", r.userHandler.Show)
