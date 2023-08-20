@@ -16,6 +16,8 @@ type UserHandler interface {
 	Index(ctx *gin.Context)
 	Show(ctx *gin.Context)
 	Create(ctx *gin.Context)
+	Update(ctx *gin.Context)
+	Delete(ctx *gin.Context)
 }
 
 type userHandler struct {
@@ -51,20 +53,53 @@ func (u *userHandler) Show(ctx *gin.Context) {
 }
 
 func (u *userHandler) Create(ctx *gin.Context) {
-	var userRequest dto.CreateUserRequest
+	var request dto.CreateUserRequest
 
-	if err := ctx.MustBindWith(&userRequest, binding.FormMultipart); err != nil {
+	if err := ctx.MustBindWith(&request, binding.FormMultipart); err != nil {
 		utils.ValidationErrorJSON(ctx, err)
 		return
 	}
 
 	file, _, _ := ctx.Request.FormFile("image")
 
-	user, err := u.service.Create(userRequest, file)
+	user, err := u.service.Create(request, file)
 	if err != nil {
 		utils.ErrorJSON(ctx, err.Status(), err.Error())
 		return
 	}
 
-	utils.SuccessJSON(ctx, http.StatusOK, "User created successfully", user)
+	utils.SuccessJSON(ctx, http.StatusCreated, "User created successfully", user)
+}
+
+func (u *userHandler) Update(ctx *gin.Context) {
+	param := ctx.Param("id")
+	id, _ := strconv.Atoi(param)
+
+	var request dto.UpdateUserRequest
+
+	if err := ctx.MustBindWith(&request, binding.FormMultipart); err != nil {
+		utils.ValidationErrorJSON(ctx, err)
+		return
+	}
+
+	file, _, _ := ctx.Request.FormFile("image")
+
+	user, err := u.service.Update(uint(id), request, file)
+	if err != nil {
+		utils.ErrorJSON(ctx, err.Status(), err.Error())
+		return
+	}
+
+	utils.SuccessJSON(ctx, http.StatusCreated, "User updated successfully", user)
+}
+
+func (u *userHandler) Delete(ctx *gin.Context) {
+	param := ctx.Param("id")
+	id, _ := strconv.Atoi(param)
+	err := u.service.Delete(uint(id))
+	if err != nil {
+		utils.ErrorJSON(ctx, err.Status(), err.Error())
+		return
+	}
+	utils.SuccessJSON(ctx, http.StatusOK, "User deleted successfully", nil)
 }

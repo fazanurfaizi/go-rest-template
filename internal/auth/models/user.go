@@ -1,7 +1,6 @@
 package models
 
 import (
-	"database/sql"
 	"strings"
 	"time"
 
@@ -24,7 +23,7 @@ type User struct {
 	Birthday    time.Time `gorm:"type:time" json:"birthday,omitempty" redis:"birthday" validate:"omitempty,lte=10" faker:"time"`
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
-	DeletedAt   sql.NullTime `gorm:"index"`
+	Deleted     gorm.DeletedAt
 }
 
 func (u *User) TableName() string {

@@ -42,4 +42,6 @@ func (r *UserRoutes) Setup() {
 	api.GET("/users", r.PaginationMiddleware.Handle(), r.userHandler.Index)
 	api.GET("/users/:id", r.userHandler.Show)
 	api.POST("/users", r.userHandler.Create)
+	api.PUT("/users/:id", r.userHandler.Update)
+	api.DELETE("/users/:id", r.userHandler.Delete)
 }

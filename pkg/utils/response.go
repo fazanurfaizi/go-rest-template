@@ -1,10 +1,12 @@
 package utils
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"github.com/fazanurfaizi/go-rest-template/pkg/constants"
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 )
 
 // JSON json response function
@@ -45,12 +47,13 @@ func JSONWithPagination(ctx *gin.Context, statusCode int, response map[string]an
 
 // ValidationErrorJSON json error validation response function
 func ValidationErrorJSON(ctx *gin.Context, err error) {
-	// validationErrors := make(map[string]string)
-	// for _, e := range err.(validator.ValidationErrors) {
-	// 	validationErrors[e.Field()] = e.Error()
-	// }
+	validationErrors := make(map[string]string)
+	for _, e := range err.(validator.ValidationErrors) {
+		validationErrors[e.Field()] = e.Error()
+	}
 
-	ErrorJSON(ctx, http.StatusBadRequest, err.Error())
+	jsonErrors, _ := json.Marshal(validationErrors)
+	ErrorJSON(ctx, http.StatusBadRequest, string(jsonErrors))
 }
 
 type PaginationMeta struct {

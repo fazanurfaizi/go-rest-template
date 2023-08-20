@@ -7,6 +7,7 @@ import (
 	"github.com/fazanurfaizi/go-rest-template/pkg/logger"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type UserRepository struct {
@@ -41,20 +42,39 @@ func (u UserRepository) FindAll(ctx *gin.Context) ([]models.User, int64) {
 }
 
 func (u UserRepository) FindById(id uint) (models.User, error) {
-	var user = models.User{ID: id}
-	err := u.Model(user).First(&user).Error
+	var user = models.User{}
+	err := u.Model(user).Where("id = ?", id).First(&user).Error
 	if err != nil {
-		return models.User{}, err
+		return user, err
 	}
 
 	return user, nil
 }
 
-func (u UserRepository) Create(user *models.User) error {
+func (u UserRepository) Create(user *models.User) (models.User, error) {
 	err := u.Model(user).Save(&user).Error
+	if err != nil {
+		return models.User{}, err
+	}
+
+	return *user, nil
+}
+
+func (u UserRepository) Update(id uint, user *models.User) (models.User, error) {
+	var updatedUser = models.User{}
+	err := u.Model(&updatedUser).Clauses(clause.Returning{}).Where("id = ?", id).First(&updatedUser).Updates(&user).Error
+	if err != nil {
+		return models.User{}, err
+	}
+
+	return updatedUser, nil
+}
+
+func (u UserRepository) Delete(id uint) error {
+	var user = models.User{}
+	err := u.Model(user).Where("id = ?", id).First(&user).Delete(&user).Error
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
