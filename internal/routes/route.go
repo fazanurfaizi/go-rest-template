@@ -1,14 +1,13 @@
 package routes
 
 import (
+	"github.com/fazanurfaizi/go-rest-template/internal/auth"
 	authRoutes "github.com/fazanurfaizi/go-rest-template/internal/auth/routes"
 	"go.uber.org/fx"
 )
 
 var RouteModule = fx.Options(
-	fx.Provide(authRoutes.NewUserRoutes),
-	fx.Provide(authRoutes.NewRoleRoutes),
-	fx.Provide(authRoutes.NewPermissionRoutes),
+	auth.AuthRoute,
 	fx.Provide(NewRoutes),
 )
 
