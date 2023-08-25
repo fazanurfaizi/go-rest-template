@@ -22,7 +22,7 @@ func NewRoleService(logger logger.Logger, repository repositories.RoleRepository
 }
 
 func (s RoleService) FindAll(ctx *gin.Context) ([]dto.RoleResponse, int64) {
-	var result []dto.RoleResponse
+	var result = make([]dto.RoleResponse, 0)
 	roles, total := s.repository.FindAll(ctx)
 	for _, role := range roles {
 		result = append(result, dto.MappingRoleResponse(role))

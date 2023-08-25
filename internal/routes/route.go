@@ -21,11 +21,13 @@ func NewRoutes(
 	userRoutes *authRoutes.UserRoutes,
 	roleRoutes *authRoutes.RoleRoutes,
 	permissionRoutes *authRoutes.PermissionRoutes,
+	menuItemRoutes *authRoutes.MenuItemRoutes,
 ) Routes {
 	return Routes{
 		userRoutes,
 		roleRoutes,
 		permissionRoutes,
+		menuItemRoutes,
 	}
 }
 

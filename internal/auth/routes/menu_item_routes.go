@@ -7,24 +7,24 @@ import (
 	"github.com/fazanurfaizi/go-rest-template/pkg/logger"
 )
 
-type PermissionRoutes struct {
+type MenuItemRoutes struct {
 	logger  logger.Logger
 	router  router.Router
-	handler handlers.PermissionHandler
+	handler handlers.MenuItemHandler
 	// authMiddleware       middlewares.AuthMiddleware
 	PaginationMiddleware middlewares.PaginationMiddleware
 	rateLimitMiddleware  middlewares.RateLimitMiddleware
 }
 
-func NewPermissionRoutes(
+func NewMenuItemRoutes(
 	logger logger.Logger,
 	router router.Router,
-	handler handlers.PermissionHandler,
+	handler handlers.MenuItemHandler,
 	// authMiddleware middlewares.AuthMiddleware,
 	pagination middlewares.PaginationMiddleware,
 	rateLimitMiddleware middlewares.RateLimitMiddleware,
-) *PermissionRoutes {
-	return &PermissionRoutes{
+) *MenuItemRoutes {
+	return &MenuItemRoutes{
 		logger:  logger,
 		router:  router,
 		handler: handler,
@@ -34,14 +34,14 @@ func NewPermissionRoutes(
 	}
 }
 
-func (r *PermissionRoutes) Setup() {
-	r.logger.Info("Setting up permission routes")
+func (r *MenuItemRoutes) Setup() {
+	r.logger.Info("Setting up menu item routes")
 
 	api := r.router.Group("/api").Use(r.rateLimitMiddleware.Handle())
 
-	api.GET("/permissions", r.PaginationMiddleware.Handle(), r.handler.Index)
-	api.GET("/permissions/:id", r.handler.Show)
-	api.POST("/permissions", r.handler.Create)
-	api.PUT("/permissions/:id", r.handler.Update)
-	api.DELETE("/permissions/:id", r.handler.Delete)
+	api.GET("/menu-items", r.PaginationMiddleware.Handle(), r.handler.Index)
+	api.GET("/menu-items/:id", r.handler.Show)
+	api.POST("/menu-items", r.handler.Create)
+	api.PUT("/menu-items/:id", r.handler.Update)
+	api.DELETE("/menu-items/:id", r.handler.Delete)
 }

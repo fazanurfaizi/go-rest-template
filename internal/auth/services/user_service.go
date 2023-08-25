@@ -28,7 +28,7 @@ func NewUserService(logger logger.Logger, repository repositories.UserRepository
 }
 
 func (s UserService) FindAll(ctx *gin.Context) ([]dto.UserResponse, int64) {
-	var result []dto.UserResponse
+	var result = make([]dto.UserResponse, 0)
 	users, total := s.repository.FindAll(ctx)
 	for _, user := range users {
 		avatarUrl, _ := s.fileStorage.GetFile(user.Avatar)

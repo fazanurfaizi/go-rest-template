@@ -22,7 +22,7 @@ func NewPermissionService(logger logger.Logger, repository repositories.Permissi
 }
 
 func (s PermissionService) FindAll(ctx *gin.Context) ([]dto.PermissionResponse, int64) {
-	var result []dto.PermissionResponse
+	var result = make([]dto.PermissionResponse, 0)
 	permissions, total := s.repository.FindAll(ctx)
 	for _, permission := range permissions {
 		result = append(result, dto.MappingPermissionResponse(permission))
