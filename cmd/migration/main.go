@@ -25,7 +25,10 @@ func main() {
 		&authModels.User{},
 		&authModels.Permission{},
 		&authModels.Role{},
-		// &authModels.RolePermission{},
+		&authModels.RolePermission{},
+		&authModels.MasterMenu{},
+		&authModels.MenuItem{},
+		&authModels.Menu{},
 	)
 	log.Println("Migration complete")
 }

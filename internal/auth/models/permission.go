@@ -11,7 +11,7 @@ type Permission struct {
 	Name      string `gorm:"column:name;type:varchar(255);not null" filter:"param:name,searchable;filterable"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	Deleted   gorm.DeletedAt
+	DeletedAt gorm.DeletedAt
 	Roles     []Role `gorm:"many2many:auth.role_permissions;"`
 }
 

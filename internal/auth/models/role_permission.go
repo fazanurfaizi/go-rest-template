@@ -1,8 +1,18 @@
 package models
 
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
+
 type RolePermission struct {
-	RoleID       uint `gorm:"foreignKey:role_id;references:auth.roles.id;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
-	PermissionID uint `gorm:"foreignKey:permission_id;references:auth.permissions.id;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+	RoleID       uint `gorm:"foreignKey:role_id"`
+	PermissionID uint `gorm:"foreignKey:permission_id"`
+	CreatedAt    time.Time
+	DeletedAt    gorm.DeletedAt
+	Role         Role       `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	Permission   Permission `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
 
 func (rp *RolePermission) TableName() string {

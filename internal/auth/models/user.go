@@ -23,7 +23,7 @@ type User struct {
 	Birthday    time.Time `gorm:"type:time"`
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
-	Deleted     gorm.DeletedAt
+	DeletedAt   gorm.DeletedAt
 }
 
 func (u *User) TableName() string {
