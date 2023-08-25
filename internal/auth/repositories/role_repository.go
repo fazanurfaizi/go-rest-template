@@ -79,9 +79,9 @@ func (r RoleRepository) Delete(id uint) error {
 		return err
 	}
 
-	if err := r.Model(&role).Association("Permissions").Clear(); err != nil {
-		return err
-	}
+	// if err := r.Model(&role).Association("Permissions").Clear(); err != nil {
+	// 	return err
+	// }
 
 	return nil
 }
