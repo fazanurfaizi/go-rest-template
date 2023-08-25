@@ -33,10 +33,11 @@ func (r RoleRepository) FindAll(ctx *gin.Context) ([]models.Role, int64) {
 }
 
 func (r RoleRepository) FindById(id uint) (role models.Role, err error) {
-	err = r.Model(role).Where("id = ?", id).First(&role).Error
+	err = r.Model(&role).Preload("Permissions").Where("id = ?", id).First(&role).Error
 	if err != nil {
 		return models.Role{}, err
 	}
+
 	return role, nil
 }
 
@@ -51,8 +52,18 @@ func (r RoleRepository) Create(role *models.Role) (models.Role, error) {
 
 func (r RoleRepository) Update(id uint, role *models.Role) (models.Role, error) {
 	var updatedRole = models.Role{}
-	err := r.Model(&updatedRole).Clauses(clause.Returning{}).Where("id = ?", id).First(&role).Updates(&role).Error
+	err := r.Model(&updatedRole).
+		Clauses(clause.Returning{}).
+		Where("id = ?", id).
+		First(&role).
+		Updates(&role).
+		Error
+
 	if err != nil {
+		return models.Role{}, err
+	}
+
+	if err := r.Model(&role).Association("Permissions").Replace(role.Permissions); err != nil {
 		return models.Role{}, err
 	}
 
@@ -61,8 +72,14 @@ func (r RoleRepository) Update(id uint, role *models.Role) (models.Role, error) 
 
 func (r RoleRepository) Delete(id uint) error {
 	var role = models.Role{}
+
 	err := r.Model(role).Where("id = ?", id).First(&role).Delete(&role).Error
+
 	if err != nil {
+		return err
+	}
+
+	if err := r.Model(&role).Association("Permissions").Clear(); err != nil {
 		return err
 	}
 

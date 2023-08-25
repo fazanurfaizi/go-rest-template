@@ -23,8 +23,8 @@ func main() {
 
 	database.AutoMigrate(
 		&authModels.User{},
-		&authModels.Role{},
 		&authModels.Permission{},
+		&authModels.Role{},
 		// &authModels.RolePermission{},
 	)
 	log.Println("Migration complete")
