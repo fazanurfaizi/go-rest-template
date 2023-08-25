@@ -13,20 +13,22 @@ import (
 )
 
 type queryParams struct {
-	Search         string `form:"search"`
-	Filter         string `form:"filter"`
-	Page           int    `form:"page,default=1"`
-	PageSize       int    `form:"page_size,default=10"`
-	All            bool   `form:"all,default=false"`
-	OrderBy        string `form:"order_by,default=created_at"`
-	OrderDirection string `form:"order_dir,default=desc,oneof=desc asc"`
+	Search         string   `form:"search"`
+	Filter         string   `form:"filter"`
+	Page           int      `form:"page,default=1"`
+	PageSize       int      `form:"page_size,default=10"`
+	All            bool     `form:"all,default=false"`
+	OrderBy        string   `form:"order_by,default=created_at"`
+	OrderDirection string   `form:"order_dir,default=desc,oneof=desc asc"`
+	Includes       []string `form:"includes"`
 }
 
 const (
-	SEARCH   = 1  // Search response with LIKE query "search={search_phrase}"
-	FILTER   = 2  // Filter response by column name values "filter={column_name}:{value}"
-	PAGINATE = 4  // Paginate response with page and page_size
-	ORDER_BY = 8  // Order response by column_name
+	SEARCH   = 1 // Search response with LIKE query "search={search_phrase}"
+	FILTER   = 2 // Filter response by column name values "filter={column_name}:{value}"
+	PAGINATE = 4 // Paginate response with page and page_size
+	ORDER_BY = 8 // Order response by column_name
+	INCLUDES = 10
 	ALL      = 15 // Equivalent to SEARCH|FILTER|PAGINATE|ORDER_BY
 	tagKey   = "filter"
 )
@@ -56,6 +58,10 @@ func paginate(db *gorm.DB, params queryParams) *gorm.DB {
 
 	offset := (params.Page - 1) * params.PageSize
 	return db.Offset(offset).Limit(params.PageSize)
+}
+
+func includes(db *gorm.DB, params string) *gorm.DB {
+	return db.Preload(params)
 }
 
 func searchField(field reflect.StructField, phrase string) clause.Expression {
@@ -133,6 +139,12 @@ func FilterByQuery(c *gin.Context, config int) func(db *gorm.DB) *gorm.DB {
 			}
 			if config&FILTER > 0 && params.Filter != "" {
 				db = expressionByField(db, params.Filter, modelType.Elem(), filterField, clause.And)
+			}
+		}
+
+		if config&INCLUDES > 0 && len(params.Includes) > 0 {
+			for _, v := range params.Includes {
+				db = includes(db, v)
 			}
 		}
 

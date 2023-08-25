@@ -27,7 +27,7 @@ func (p PaginationMiddleware) Handle() gin.HandlerFunc {
 
 		page, err := strconv.ParseInt(ctx.Query("page"), 10, 0)
 		if err != nil {
-			page = 0
+			page = 1
 		}
 
 		ctx.Set(constants.Limit, perPage)
