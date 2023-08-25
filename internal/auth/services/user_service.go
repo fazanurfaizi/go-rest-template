@@ -10,7 +10,6 @@ import (
 	"github.com/fazanurfaizi/go-rest-template/pkg/errors"
 	"github.com/fazanurfaizi/go-rest-template/pkg/formatter"
 	"github.com/fazanurfaizi/go-rest-template/pkg/logger"
-	"github.com/fazanurfaizi/go-rest-template/pkg/utils"
 	"github.com/gin-gonic/gin"
 )
 
@@ -28,26 +27,6 @@ func NewUserService(logger logger.Logger, repository repositories.UserRepository
 	}
 }
 
-func (s UserService) FindById(id uint) (dto.UserResponse, error) {
-	user, err := s.repository.FindById(id)
-	if err != nil {
-		return dto.UserResponse{}, err
-	}
-
-	avatarUrl, _ := s.fileStorage.GetFile(user.Avatar)
-	return dto.MappingUserResponse(user, avatarUrl), nil
-}
-
-func (s UserService) FindByEmailAndPassword(email string, password string) (user models.User, err error) {
-	s.repository.First(&user, "email = ? ", email)
-	_, err = utils.ValidateHash(password, user.Password)
-	if err != nil {
-		return models.User{}, err
-	}
-
-	return user, nil
-}
-
 func (s UserService) FindAll(ctx *gin.Context) ([]dto.UserResponse, int64) {
 	var result []dto.UserResponse
 	users, total := s.repository.FindAll(ctx)
@@ -57,6 +36,16 @@ func (s UserService) FindAll(ctx *gin.Context) ([]dto.UserResponse, int64) {
 	}
 
 	return result, total
+}
+
+func (s UserService) FindById(id uint) (dto.UserResponse, error) {
+	user, err := s.repository.FindById(id)
+	if err != nil {
+		return dto.UserResponse{}, err
+	}
+
+	avatarUrl, _ := s.fileStorage.GetFile(user.Avatar)
+	return dto.MappingUserResponse(user, avatarUrl), nil
 }
 
 func (s UserService) Create(request dto.CreateUserRequest, file multipart.File) (dto.UserResponse, errors.RestErr) {
@@ -87,7 +76,7 @@ func (s UserService) Create(request dto.CreateUserRequest, file multipart.File) 
 
 	createdUser, err := s.repository.Create(&user)
 	if err != nil {
-		return dto.UserResponse{}, errors.NewBadRequestError(err.Error())
+		return dto.UserResponse{}, errors.NewInternalServerError(err.Error())
 	}
 
 	avatarUrl, _ := s.fileStorage.GetFile(user.Avatar)

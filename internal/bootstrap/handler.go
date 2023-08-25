@@ -8,4 +8,5 @@ import (
 var HandlerModule = fx.Options(
 	fx.Provide(authHandlers.NewUserHandler),
 	fx.Provide(authHandlers.NewRoleHandler),
+	fx.Provide(authHandlers.NewPermissionHandler),
 )

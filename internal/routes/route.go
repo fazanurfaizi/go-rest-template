@@ -8,6 +8,7 @@ import (
 var RouteModule = fx.Options(
 	fx.Provide(authRoutes.NewUserRoutes),
 	fx.Provide(authRoutes.NewRoleRoutes),
+	fx.Provide(authRoutes.NewPermissionRoutes),
 	fx.Provide(NewRoutes),
 )
 
@@ -20,10 +21,12 @@ type Routes []Route
 func NewRoutes(
 	userRoutes *authRoutes.UserRoutes,
 	roleRoutes *authRoutes.RoleRoutes,
+	permissionRoutes *authRoutes.PermissionRoutes,
 ) Routes {
 	return Routes{
 		userRoutes,
 		roleRoutes,
+		permissionRoutes,
 	}
 }
 

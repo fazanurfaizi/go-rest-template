@@ -96,10 +96,12 @@ func (u *userHandler) Update(ctx *gin.Context) {
 func (u *userHandler) Delete(ctx *gin.Context) {
 	param := ctx.Param("id")
 	id, _ := strconv.Atoi(param)
+
 	err := u.service.Delete(uint(id))
 	if err != nil {
 		utils.ErrorJSON(ctx, err.Status(), err.Error())
 		return
 	}
+
 	utils.SuccessJSON(ctx, http.StatusOK, "User deleted successfully", nil)
 }
