@@ -12,6 +12,7 @@ type MasterMenu struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt
+	Menus     []Menu `gorm:"many2many:auth.menus;"`
 }
 
 func (m *MasterMenu) TableName() string {

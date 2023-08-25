@@ -14,6 +14,7 @@ var AuthRepository = fx.Options(
 	fx.Provide(repositories.NewRoleRepository),
 	fx.Provide(repositories.NewPermissionRepository),
 	fx.Provide(repositories.NewMenuItemRepository),
+	fx.Provide(repositories.NewMasterMenuRepository),
 )
 
 // Auth Services Dependency Injection
@@ -23,6 +24,7 @@ var AuthService = fx.Options(
 	fx.Provide(services.NewRoleService),
 	fx.Provide(services.NewPermissionService),
 	fx.Provide(services.NewMenuItemService),
+	fx.Provide(services.NewMasterMenuService),
 )
 
 // Auth Handlers Dependency Injection
@@ -31,6 +33,7 @@ var AuthHandler = fx.Options(
 	fx.Provide(handlers.NewPermissionHandler),
 	fx.Provide(handlers.NewRoleHandler),
 	fx.Provide(handlers.NewMenuItemHandler),
+	fx.Provide(handlers.NewMasterMenuHandler),
 )
 
 // Auth Routes Dependency Injection
@@ -39,4 +42,5 @@ var AuthRoute = fx.Options(
 	fx.Provide(routes.NewRoleRoutes),
 	fx.Provide(routes.NewPermissionRoutes),
 	fx.Provide(routes.NewMenuItemRoutes),
+	fx.Provide(routes.NewMasterMenuRoutes),
 )

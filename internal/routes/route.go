@@ -22,12 +22,14 @@ func NewRoutes(
 	roleRoutes *authRoutes.RoleRoutes,
 	permissionRoutes *authRoutes.PermissionRoutes,
 	menuItemRoutes *authRoutes.MenuItemRoutes,
+	masterMenuRoutes *authRoutes.MasterMenuRoutes,
 ) Routes {
 	return Routes{
 		userRoutes,
 		roleRoutes,
 		permissionRoutes,
 		menuItemRoutes,
+		masterMenuRoutes,
 	}
 }
 
