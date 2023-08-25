@@ -10,17 +10,17 @@ import (
 
 type User struct {
 	ID          uint      `gorm:"primarykey"`
-	Name        string    `gorm:"column:name;type:varchar(255);not null" json:"name" redis:"name" validate:"required,lte=30" faker:"name" filter:"param:name;searchable;filterable"`
-	Email       string    `gorm:"type:varchar(255);uniqueIndex;no null" json:"email" faker:"email"`
-	Password    string    `gorm:"type:varchar(255)" json:"password,omitempty" redis:"password" validate:"omitempty,required,gte=6" faker:"password"`
-	Avatar      string    `gorm:"type:varchar(255)" json:"avatar,omitempty" redis:"avatar" validate:"omitempty,lte=512,url" faker:"url"`
-	PhoneNumber string    `gorm:"type:varchar(255)" json:"phone_number,omitempty" redis:"phone_number" validate:"omitempty,lte=20" faker:"phone_number"`
-	Address     string    `gorm:"type:text" json:"address,omitempty" redis:"address" validate:"omitempty,lte=250" faker:"address"`
-	City        string    `gorm:"type:varchar(255)" json:"city,omitempty" redis:"city" validate:"omitempty,lte=24"`
-	Country     string    `gorm:"type:varchar(255)" json:"country,omitempty" redis:"country" validate:"omitempty,lte=24"`
-	Gender      string    `gorm:"type:varchar(255)" json:"gender,omitempty" redis:"gender" validate:"omitempty,lte=10"`
-	Postcode    string    `gorm:"type:varchar(10)" json:"postcode,omitempty" redis:"postcode" validate:"omitempty"`
-	Birthday    time.Time `gorm:"type:time" json:"birthday,omitempty" redis:"birthday" validate:"omitempty,lte=10" faker:"time"`
+	Name        string    `gorm:"column:name;type:varchar(255);not null" filter:"param:name;searchable;filterable"`
+	Email       string    `gorm:"type:varchar(255);uniqueIndex;no null"`
+	Password    string    `gorm:"type:varchar(255)"`
+	Avatar      string    `gorm:"type:varchar(255)"`
+	PhoneNumber string    `gorm:"type:varchar(255)"`
+	Address     string    `gorm:"type:text"`
+	City        string    `gorm:"type:varchar(255)"`
+	Country     string    `gorm:"type:varchar(255)"`
+	Gender      string    `gorm:"type:varchar(255)"`
+	Postcode    string    `gorm:"type:varchar(10)"`
+	Birthday    time.Time `gorm:"type:time"`
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 	Deleted     gorm.DeletedAt

@@ -16,11 +16,16 @@ func main() {
 
 	database := postgres.NewConnection(config)
 
-	schemas := [3]string{"auth", "master", "transaction"}
+	schemas := [4]string{"public", "auth", "master", "transaction"}
 	for _, schema := range schemas {
 		database.Exec(fmt.Sprintf("CREATE SCHEMA IF NOT EXISTS %s;", schema))
 	}
 
-	database.AutoMigrate(&authModels.User{})
+	database.AutoMigrate(
+		&authModels.User{},
+		&authModels.Role{},
+		&authModels.Permission{},
+		// &authModels.RolePermission{},
+	)
 	log.Println("Migration complete")
 }

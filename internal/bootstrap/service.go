@@ -8,4 +8,5 @@ import (
 var ServiceModule = fx.Options(
 	fx.Provide(authServices.NewUserService),
 	fx.Provide(authServices.NewAuthService),
+	fx.Provide(authServices.NewRoleService),
 )

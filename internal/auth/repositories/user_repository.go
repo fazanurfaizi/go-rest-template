@@ -6,7 +6,6 @@ import (
 	"github.com/fazanurfaizi/go-rest-template/pkg/core/db/postgres/filter"
 	"github.com/fazanurfaizi/go-rest-template/pkg/logger"
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
 
@@ -17,14 +16,6 @@ type UserRepository struct {
 
 func NewUserRepository(db postgres.Database, logger logger.Logger) UserRepository {
 	return UserRepository{db, logger}
-}
-
-func (u UserRepository) WithTrx(trx *gorm.DB) UserRepository {
-	if trx != nil {
-		u.logger.Debug("Using WithTrx as trxHandle is not nil")
-		u.Database.DB = trx
-	}
-	return u
 }
 
 func (u UserRepository) FindAll(ctx *gin.Context) ([]models.User, int64) {
@@ -76,5 +67,6 @@ func (u UserRepository) Delete(id uint) error {
 	if err != nil {
 		return err
 	}
+
 	return nil
 }

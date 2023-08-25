@@ -12,14 +12,12 @@ import (
 	"github.com/fazanurfaizi/go-rest-template/pkg/logger"
 	"github.com/fazanurfaizi/go-rest-template/pkg/utils"
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 type UserService struct {
-	logger          logger.Logger
-	repository      repositories.UserRepository
-	fileStorage     storage.FileStorage
-	paginationScope *gorm.DB
+	logger      logger.Logger
+	repository  repositories.UserRepository
+	fileStorage storage.FileStorage
 }
 
 func NewUserService(logger logger.Logger, repository repositories.UserRepository, fileStorage storage.FileStorage) *UserService {
@@ -28,16 +26,6 @@ func NewUserService(logger logger.Logger, repository repositories.UserRepository
 		repository:  repository,
 		fileStorage: fileStorage,
 	}
-}
-
-func (s UserService) WithTrx(trx *gorm.DB) UserService {
-	s.repository = s.repository.WithTrx(trx)
-	return s
-}
-
-func (s UserService) SetPaginationScope(scope func(*gorm.DB) *gorm.DB) UserService {
-	s.paginationScope = s.repository.WithTrx(s.repository.Scopes(scope)).DB
-	return s
 }
 
 func (s UserService) FindById(id uint) (dto.UserResponse, error) {

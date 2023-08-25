@@ -7,4 +7,5 @@ import (
 
 var RepositoryModule = fx.Options(
 	fx.Provide(authRepositories.NewUserRepository),
+	fx.Provide(authRepositories.NewRoleRepository),
 )
