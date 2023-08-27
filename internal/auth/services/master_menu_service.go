@@ -24,20 +24,20 @@ func NewMasterMenuService(logger logger.Logger, repository repositories.MasterMe
 func (s MasterMenuService) FindAll(ctx *gin.Context) ([]dto.MasterMenuResponse, int64) {
 	var result = make([]dto.MasterMenuResponse, 0)
 	masterMenus, total := s.repository.FindAll(ctx)
-	for _, role := range masterMenus {
-		result = append(result, dto.MappingMasterMenuResponse(role))
+	for _, masterMenu := range masterMenus {
+		result = append(result, dto.MappingMasterMenuResponse(masterMenu))
 	}
 
 	return result, total
 }
 
 func (s MasterMenuService) FindById(id uint) (dto.MasterMenuResponse, errors.RestErr) {
-	role, err := s.repository.FindById(id)
+	masterMenu, err := s.repository.FindById(id)
 	if err != nil {
 		return dto.MasterMenuResponse{}, errors.NewNotFoundError(err.Error())
 	}
 
-	return dto.MappingMasterMenuResponse(role), nil
+	return dto.MappingMasterMenuResponse(masterMenu), nil
 }
 
 // Create implements MasterMenuService.
@@ -98,17 +98,53 @@ func (s *MasterMenuService) Create(request dto.CreateMasterMenuRequest) (dto.Mas
 
 // Update implements MasterMenuService.
 func (s *MasterMenuService) Update(id uint, request dto.UpdateMasterMenuRequest) (dto.MasterMenuResponse, errors.RestErr) {
-	// var permissions []models.Permission
-	// if len(request.Permissions) > 0 {
-	// 	for _, v := range request.Permissions {
-	// 		permission := models.Permission{ID: v}
-	// 		permissions = append(permissions, permission)
-	// 	}
-	// }
+	var menus []models.Menu
+	if len(request.Menus) > 0 {
+		for i, v := range request.Menus {
+			params := paramNormalizeMenu{
+				ID:         v.ID,
+				menuItemID: v.MenuItemID,
+				Menu:       v,
+				parentID:   0,
+				order:      i,
+			}
+			menu := normalizeMenu(params)
+
+			if len(params.Menu.Children) > 0 {
+				children := make([]models.Menu, 0)
+				for k, child := range params.Menu.Children {
+					childMenu := models.Menu{
+						ID:         *child.ID,
+						MenuItemID: child.MenuItemID,
+						Order:      k,
+					}
+
+					if len(child.Children) > 0 {
+						for _, c := range child.Children {
+							childMenus := normalizeChildrenMenu(paramNormalizeChildrenMenu{
+								menu:     c,
+								children: c.Children,
+								order:    k,
+							})
+
+							childMenu.Children = append(childMenu.Children, childMenus...)
+						}
+					}
+
+					children = append(children, childMenu)
+				}
+
+				menu.Children = children
+			}
+
+			menus = append(menus, menu)
+		}
+	}
 
 	masterMenu := models.MasterMenu{
-		Name: request.Name,
-		// Permissions: permissions,
+		ID:    id,
+		Name:  request.Name,
+		Menus: menus,
 	}
 
 	updatedMasterMenu, err := s.repository.Update(id, &masterMenu)
@@ -130,6 +166,7 @@ func (s *MasterMenuService) Delete(id uint) errors.RestErr {
 }
 
 type paramNormalizeMenu struct {
+	ID         *uint
 	menuItemID uint
 	Menu       dto.CreateMenu
 	parentID   uint
@@ -141,6 +178,10 @@ func normalizeMenu(params paramNormalizeMenu) models.Menu {
 		MenuItemID: params.menuItemID,
 		Order:      params.order,
 		ParentID:   &params.parentID,
+	}
+
+	if params.ID != nil {
+		menu.ID = *params.ID
 	}
 
 	if len(params.Menu.Children) > 0 {
@@ -167,6 +208,10 @@ func normalizeChildrenMenu(params paramNormalizeChildrenMenu) []models.Menu {
 	menu := models.Menu{
 		MenuItemID: params.menu.MenuItemID,
 		Order:      params.order,
+	}
+
+	if params.menu.ID != nil {
+		menu.ID = *params.menu.ID
 	}
 
 	for i, v := range params.children {

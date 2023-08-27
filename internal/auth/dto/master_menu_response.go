@@ -6,26 +6,30 @@ import (
 )
 
 type MasterMenuResponse struct {
-	ID        uint   `json:"id"`
-	Name      string `json:"name"`
-	CreatedAt string `json:"created_at"`
-	UpdatedAt string `json:"updated_at"`
-	// Permissions []PermissionResponse `json:"permissions,omitempty"`
+	ID        uint           `json:"id"`
+	Name      string         `json:"name"`
+	CreatedAt string         `json:"created_at"`
+	UpdatedAt string         `json:"updated_at"`
+	Menus     []MenuResponse `json:"menus,omitempty"`
+}
+
+type MenuResponse struct {
+	ID           uint             `json:"id"`
+	ParentID     *uint            `json:"parent_id"`
+	MasterMenuID uint             `json:"master_menu_id"`
+	MenuItemID   uint             `json:"menu_item_id"`
+	Order        int              `json:"order"`
+	MenuItem     MenuItemResponse `json:"menu_item"`
+	Children     []MenuResponse   `json:"children"`
+	CreatedAt    string           `json:"created_at"`
+	UpdatedAt    string           `json:"updated_at"`
 }
 
 func MappingMasterMenuResponse(m models.MasterMenu) MasterMenuResponse {
-	// var permissions []PermissionResponse
-	// if len(m.Permissions) > 0 {
-	// 	for _, v := range m.Permissions {
-	// 		permissions = append(permissions, MappingPermissionResponse(v))
-	// 	}
-	// }
-
 	return MasterMenuResponse{
 		ID:        m.ID,
 		Name:      m.Name,
 		CreatedAt: formatter.FormatTime(m.CreatedAt, formatter.YYYYMMDDhhmmss),
 		UpdatedAt: formatter.FormatTime(m.UpdatedAt, formatter.YYYYMMDDhhmmss),
-		// Permissions: permissions,
 	}
 }

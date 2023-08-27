@@ -33,10 +33,38 @@ func (r MasterMenuRepository) FindAll(ctx *gin.Context) ([]models.MasterMenu, in
 }
 
 func (r MasterMenuRepository) FindById(id uint) (masterMenu models.MasterMenu, err error) {
-	err = r.Model(&masterMenu).Preload("Menus").Where("id = ?", id).First(&masterMenu).Error
+	err = r.Model(&masterMenu).
+		Where("id = ?", id).
+		First(&masterMenu).
+		Error
+
 	if err != nil {
 		return models.MasterMenu{}, err
 	}
+
+	var menuResult = make([]models.Menu, 0)
+	err = r.DB.
+		Model(&models.Menu{}).
+		Preload("MenuItem").
+		Where("master_menu_id = ?", id).
+		Order("parent_id").
+		Find(&menuResult).
+		Error
+
+	if err != nil {
+		return models.MasterMenu{}, err
+	}
+
+	var menus = make([]models.Menu, 0)
+	for _, menu := range menuResult {
+		if menu.ParentID == nil {
+			childMenus := normalizeMenus(&menu, menuResult)
+			menu.Children = childMenus
+			menus = append(menus, menu)
+		}
+	}
+
+	masterMenu.Menus = menus
 
 	return masterMenu, nil
 }
@@ -44,10 +72,10 @@ func (r MasterMenuRepository) FindById(id uint) (masterMenu models.MasterMenu, e
 func (r MasterMenuRepository) Create(masterMenu *models.MasterMenu) (models.MasterMenu, error) {
 	createdMasterMenu := models.MasterMenu{Name: masterMenu.Name}
 
-	result := r.Model(&createdMasterMenu).Clauses(clause.Returning{}).Select("id", "name").Create(&createdMasterMenu)
+	err := r.Model(&createdMasterMenu).Clauses(clause.Returning{}).Select("id", "name").Create(&createdMasterMenu).Error
 
-	if result.Error != nil {
-		return models.MasterMenu{}, result.Error
+	if err != nil {
+		return models.MasterMenu{}, err
 	}
 
 	if len(masterMenu.Menus) > 0 {
@@ -96,9 +124,7 @@ func (r MasterMenuRepository) Create(masterMenu *models.MasterMenu) (models.Mast
 func (r MasterMenuRepository) Update(id uint, masterMenu *models.MasterMenu) (models.MasterMenu, error) {
 	var updateMasterMenu = models.MasterMenu{}
 	err := r.Model(&updateMasterMenu).
-		Clauses(clause.Returning{}).
 		Where("id = ?", id).
-		First(&masterMenu).
 		Updates(&masterMenu).
 		Error
 
@@ -106,9 +132,61 @@ func (r MasterMenuRepository) Update(id uint, masterMenu *models.MasterMenu) (mo
 		return models.MasterMenu{}, err
 	}
 
-	// if err := r.Model(&masterMenu).Association("Menus").Replace(masterMenu.Menus); err != nil {
-	// 	return models.MasterMenu{}, err
-	// }
+	if err := r.DB.Model(&models.Menu{}).Delete(&models.Menu{}, "master_menu_id = ?", id).Error; err != nil {
+		return models.MasterMenu{}, err
+	}
+
+	if len(masterMenu.Menus) > 0 {
+		for i, v := range masterMenu.Menus {
+			menuParams := saveMenuParams{
+				masterMenu: &updateMasterMenu,
+				menu:       v,
+				parentID:   nil,
+				order:      i,
+			}
+
+			if v.ID > 0 {
+				menuParams.ID = &v.ID
+			}
+
+			menu, _ := saveMenu(&r, menuParams)
+
+			if len(v.Children) > 0 {
+				for k, child := range v.Children {
+					val := models.Menu{
+						ParentID:     &menu.ID,
+						MasterMenuID: updateMasterMenu.ID,
+						MenuItemID:   child.MenuItemID,
+						Order:        k,
+					}
+
+					childParams := saveMenuParams{
+						masterMenu: &updateMasterMenu,
+						menu:       val,
+						parentID:   &menu.ID,
+						order:      k,
+					}
+
+					if child.ID > 0 {
+						childParams.ID = &child.ID
+					}
+
+					childMenu, _ := saveMenu(&r, childParams)
+
+					if len(child.Children) > 0 {
+						for _, c := range child.Children {
+							saveChildrenMenu(&r, saveChildrenMenuParams{
+								masterMenu: &updateMasterMenu,
+								menu:       c,
+								parentID:   &childMenu.ID,
+								menus:      c.Children,
+							})
+						}
+					}
+				}
+			}
+		}
+	}
 
 	return updateMasterMenu, nil
 }
@@ -122,14 +200,15 @@ func (r MasterMenuRepository) Delete(id uint) error {
 		return err
 	}
 
-	// if err := r.Model(&masterMenu).Association("Permissions").Clear(); err != nil {
-	// 	return err
-	// }
+	if err := r.DB.Model(&models.Menu{}).Delete(&models.Menu{}, "master_menu_id = ?", id).Error; err != nil {
+		return err
+	}
 
 	return nil
 }
 
 type saveMenuParams struct {
+	ID         *uint
 	masterMenu *models.MasterMenu
 	menu       models.Menu
 	parentID   *uint
@@ -146,20 +225,32 @@ type saveChildrenMenuParams struct {
 func saveChildrenMenu(r *MasterMenuRepository, params saveChildrenMenuParams) []models.Menu {
 	var result = make([]models.Menu, 0)
 
-	data, _ := saveMenu(r, saveMenuParams{
+	saveParams := saveMenuParams{
 		masterMenu: params.masterMenu,
 		menu:       params.menu,
 		parentID:   params.parentID,
 		order:      0,
-	})
+	}
+
+	if params.menu.ID > 0 {
+		saveParams.ID = &params.menu.ID
+	}
+
+	data, _ := saveMenu(r, saveParams)
 
 	for i, v := range params.menus {
-		child, _ := saveMenu(r, saveMenuParams{
+		childParams := saveMenuParams{
 			masterMenu: params.masterMenu,
 			menu:       v,
 			parentID:   &data.ID,
 			order:      i,
-		})
+		}
+
+		if v.ID > 0 {
+			childParams.ID = &v.ID
+		}
+
+		child, _ := saveMenu(r, childParams)
 
 		if len(v.Children) > 0 {
 			saveChildrenMenu(r, saveChildrenMenuParams{
@@ -185,7 +276,11 @@ func saveMenu(r *MasterMenuRepository, params saveMenuParams) (models.Menu, erro
 			Order:        params.menu.Order,
 		}
 
-		err := r.Model(&data).Create(&data).Error
+		if params.ID != nil {
+			data.ID = *params.ID
+		}
+
+		err := r.Model(&data).Save(&data).Error
 		if err != nil {
 			return models.Menu{}, err
 		}
@@ -194,4 +289,25 @@ func saveMenu(r *MasterMenuRepository, params saveMenuParams) (models.Menu, erro
 	}
 
 	return models.Menu{}, nil
+}
+
+func normalizeMenus(menu *models.Menu, menus []models.Menu) []models.Menu {
+	var result = make([]models.Menu, 0)
+
+	if len(menus) > 0 {
+		for _, v := range menus {
+			if v.ParentID != nil {
+				if *v.ParentID == menu.ID {
+					var children = make([]models.Menu, 0)
+					childMenus := normalizeMenus(&v, menus)
+					children = append(children, childMenus...)
+
+					v.Children = children
+					result = append(result, v)
+				}
+			}
+		}
+	}
+
+	return result
 }

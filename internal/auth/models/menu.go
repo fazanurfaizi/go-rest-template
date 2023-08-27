@@ -17,8 +17,8 @@ type Menu struct {
 	DeletedAt    gorm.DeletedAt
 	Parent       *Menu      `gorm:"foreignKey:ParentID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 	Children     []Menu     `gorm:"-"`
-	MenuItem     MenuItem   `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
-	MasterMenu   MasterMenu `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+	MasterMenu   MasterMenu `gorm:"foreignKey:MasterMenuID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+	MenuItem     MenuItem   `gorm:"foreignKey:MenuItemID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 }
 
 func (m *Menu) TableName() string {
