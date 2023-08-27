@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/fazanurfaizi/go-rest-template/pkg/config"
 )
 
 type JWTService interface {
@@ -22,10 +23,9 @@ type Claims struct {
 }
 
 type jwtService struct {
+	config     *config.Config
 	privateKey []byte
 	publicKey  []byte
-	issuer     string
-	expired    int
 }
 
 type JWTDto struct {
@@ -34,16 +34,14 @@ type JWTDto struct {
 }
 
 func NewJWTService(
+	config *config.Config,
 	privateKey []byte,
 	publicKey []byte,
-	issuer string,
-	expired int,
 ) JWTService {
 	return &jwtService{
+		config:     config,
 		privateKey: privateKey,
 		publicKey:  publicKey,
-		issuer:     issuer,
-		expired:    expired,
 	}
 }
 
@@ -57,8 +55,8 @@ func (j *jwtService) GenerateToken(user *JWTDto) (token string, err error) {
 		Email: user.Email,
 		ID:    user.ID,
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(time.Hour * time.Duration(j.expired)).Unix(),
-			Issuer:    j.issuer,
+			ExpiresAt: time.Now().Add(time.Hour * time.Duration(j.config.Session.Expire)).Unix(),
+			Issuer:    j.config.Session.Name,
 			IssuedAt:  time.Now().Unix(),
 		},
 	}
@@ -80,19 +78,19 @@ func (j *jwtService) ExtractJWTFromRequest(r *http.Request) (map[string]interfac
 
 	token, err := jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) {
 		if _, ok := t.Method.(*jwt.SigningMethodRSA); !ok {
-			return nil, errors.New("errow while parse JWT token")
+			return nil, errors.New(err.Error())
 		}
 
 		return key, nil
 	})
 
 	if err != nil {
-		return nil, errors.New("token is not valid")
+		return nil, errors.New(err.Error())
 	}
 
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok || !token.Valid {
-		return nil, errors.New("token is not valid")
+		return nil, errors.New(err.Error())
 	}
 
 	return claims, nil
@@ -102,5 +100,8 @@ func (j *jwtService) ExtractJWTFromRequest(r *http.Request) (map[string]interfac
 func ExtractBearerToken(r *http.Request) string {
 	headerAuthorization := r.Header.Get("Authorization")
 	bearerToken := strings.Split(headerAuthorization, " ")
-	return html.EscapeString(bearerToken[1])
+	if len(bearerToken) > 1 {
+		return html.EscapeString(bearerToken[1])
+	}
+	return ""
 }

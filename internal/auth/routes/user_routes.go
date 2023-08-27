@@ -8,10 +8,10 @@ import (
 )
 
 type UserRoutes struct {
-	logger  logger.Logger
-	router  router.Router
-	handler handlers.UserHandler
-	// authMiddleware       middlewares.AuthMiddleware
+	logger                logger.Logger
+	router                router.Router
+	handler               handlers.UserHandler
+	authMiddleware        *middlewares.AuthMiddleware
 	PaginationMiddleware  middlewares.PaginationMiddleware
 	transactionMiddleware middlewares.DBTransactionMiddleware
 }
@@ -20,15 +20,15 @@ func NewUserRoutes(
 	logger logger.Logger,
 	router router.Router,
 	handler handlers.UserHandler,
-	// authMiddleware middlewares.AuthMiddleware,
+	authMiddleware *middlewares.AuthMiddleware,
 	pagination middlewares.PaginationMiddleware,
 	transactionMiddleware middlewares.DBTransactionMiddleware,
 ) *UserRoutes {
 	return &UserRoutes{
-		logger:  logger,
-		router:  router,
-		handler: handler,
-		// authMiddleware:       authMiddleware,
+		logger:                logger,
+		router:                router,
+		handler:               handler,
+		authMiddleware:        authMiddleware,
 		PaginationMiddleware:  pagination,
 		transactionMiddleware: transactionMiddleware,
 	}
@@ -37,7 +37,7 @@ func NewUserRoutes(
 func (r *UserRoutes) Setup() {
 	r.logger.Info("Setting up user routes")
 
-	api := r.router.Group("/api")
+	api := r.router.Group("/api").Use(r.authMiddleware.Handle())
 
 	r.router.MaxMultipartMemory = 8 << 20
 	api.GET("/users", r.PaginationMiddleware.Handle(), r.handler.Index)

@@ -1,7 +1,6 @@
 package services
 
 import (
-	"fmt"
 	"log"
 	"os"
 
@@ -30,14 +29,12 @@ func NewAuthService(
 		log.Fatalln(err)
 	}
 
-	fmt.Println(privateKey)
-
 	publicKey, err := os.ReadFile("ssl/id_rsa.pub")
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	jwtService := jwt.NewJWTService(privateKey, publicKey, config.Server.AppName, 10)
+	jwtService := jwt.NewJWTService(config, privateKey, publicKey)
 
 	return &AuthService{
 		config:     config,

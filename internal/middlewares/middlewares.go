@@ -12,6 +12,7 @@ var Module = fx.Options(
 	fx.Provide(NewJsonMiddleware),
 	fx.Provide(NewCsrfMiddleware),
 	fx.Provide(NewSanitizeMiddleware),
+	fx.Provide(NewAuthMiddleware),
 	fx.Provide(NewMiddlewares),
 )
 
@@ -22,6 +23,7 @@ type IMiddleware interface {
 type Middlewares []IMiddleware
 
 func NewMiddlewares(
+	// Register Default Middlewares
 	jsonMiddleware *JsonMiddleware,
 	rateLimitMiddleware *RateLimitMiddleware,
 	csrfMiddleware *CsrfMiddleware,
