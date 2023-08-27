@@ -23,6 +23,7 @@ func NewRoutes(
 	permissionRoutes *authRoutes.PermissionRoutes,
 	menuItemRoutes *authRoutes.MenuItemRoutes,
 	masterMenuRoutes *authRoutes.MasterMenuRoutes,
+	authRoutes *authRoutes.AuthRoutes,
 ) Routes {
 	return Routes{
 		userRoutes,
@@ -30,6 +31,7 @@ func NewRoutes(
 		permissionRoutes,
 		menuItemRoutes,
 		masterMenuRoutes,
+		authRoutes,
 	}
 }
 

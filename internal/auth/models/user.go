@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
@@ -42,7 +43,9 @@ func (u *User) HashPassword() error {
 
 // Compare user password and payload
 func (u *User) ComparePassword(password string) (bool, error) {
-	valid, err := utils.ValidateHash(password, u.Password)
+	fmt.Println(u.Password)
+	fmt.Println(password)
+	valid, err := utils.ValidateHash(u.Password, password)
 	if err != nil {
 		return false, err
 	}
@@ -51,11 +54,7 @@ func (u *User) ComparePassword(password string) (bool, error) {
 
 func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
 	u.Email = strings.ToLower(strings.TrimSpace(u.Email))
-	u.Password = strings.TrimSpace(u.Password)
-
-	if err := u.HashPassword(); err != nil {
-		return err
-	}
-
+	hashedPassword, err := utils.GenerateHash(strings.TrimSpace(u.Password))
+	u.Password = hashedPassword
 	return err
 }

@@ -49,7 +49,7 @@ func TestValidateHash(t *testing.T) {
 	}
 	for index, test := range tests {
 		t.Run(fmt.Sprintf("Test %d | %s", index, test.name), func(t *testing.T) {
-			if got, _ := ValidateHash(test.secret, test.hash); got != test.isValid {
+			if got, _ := ValidateHash(test.hash, test.secret); got != test.isValid {
 				t.Errorf("ValidateHash(%q, %q) = %v, expected %v", test.secret, test.hash, got, test.isValid)
 			}
 		})

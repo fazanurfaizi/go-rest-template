@@ -19,8 +19,9 @@ func GenerateHash(password string) (string, error) {
 	return string(result), nil
 }
 
-func ValidateHash(password string, hash string) (bool, error) {
-	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+func ValidateHash(hash string, password string) (bool, error) {
+	temp, _ := GenerateHash(password)
+	err := bcrypt.CompareHashAndPassword([]byte(temp), []byte(password))
 	if err != nil {
 		return false, err
 	}

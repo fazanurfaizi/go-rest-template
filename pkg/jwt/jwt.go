@@ -8,38 +8,54 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/fazanurfaizi/go-rest-template/internal/auth/models"
 )
 
 type JWTService interface {
-	GenerateToken(user *models.User) (token string, err error)
+	GenerateToken(user *JWTDto) (token string, err error)
 	ExtractJWTFromRequest(r *http.Request) (map[string]interface{}, error)
 }
 
 type Claims struct {
 	Email string `json:"email"`
-	ID    int    `json:"id"`
+	ID    uint   `json:"id"`
 	jwt.StandardClaims
 }
 
 type jwtService struct {
-	secretKey string
-	issuer    string
-	expired   int
+	privateKey []byte
+	publicKey  []byte
+	issuer     string
+	expired    int
 }
 
-func NewJWTService(secretKey string, issuer string, expired int) JWTService {
+type JWTDto struct {
+	ID    uint
+	Email string
+}
+
+func NewJWTService(
+	privateKey []byte,
+	publicKey []byte,
+	issuer string,
+	expired int,
+) JWTService {
 	return &jwtService{
-		secretKey: secretKey,
-		issuer:    issuer,
-		expired:   expired,
+		privateKey: privateKey,
+		publicKey:  publicKey,
+		issuer:     issuer,
+		expired:    expired,
 	}
 }
 
-func (j *jwtService) GenerateToken(user *models.User) (token string, err error) {
+func (j *jwtService) GenerateToken(user *JWTDto) (token string, err error) {
+	key, err := jwt.ParseRSAPrivateKeyFromPEM(j.privateKey)
+	if err != nil {
+		return "", errors.New(err.Error())
+	}
+
 	claims := &Claims{
 		Email: user.Email,
-		ID:    1,
+		ID:    user.ID,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(time.Hour * time.Duration(j.expired)).Unix(),
 			Issuer:    j.issuer,
@@ -47,32 +63,36 @@ func (j *jwtService) GenerateToken(user *models.User) (token string, err error) 
 		},
 	}
 
-	jwtToken := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	t, err := jwtToken.SignedString([]byte(j.secretKey))
+	jwtToken := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
+	t, err := jwtToken.SignedString(key)
 	return t, err
 }
 
 // Extract JWT from request
 func (j *jwtService) ExtractJWTFromRequest(r *http.Request) (map[string]interface{}, error) {
+	key, err := jwt.ParseRSAPublicKeyFromPEM(j.publicKey)
+	if err != nil {
+		return nil, errors.New(err.Error())
+	}
+
 	// Get the jwt string
 	tokenString := ExtractBearerToken(r)
 
-	// Initialize a new instance of Claims
-	claims := jwt.MapClaims{}
+	token, err := jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) {
+		if _, ok := t.Method.(*jwt.SigningMethodRSA); !ok {
+			return nil, errors.New("errow while parse JWT token")
+		}
 
-	token, err := jwt.ParseWithClaims(tokenString, claims, func(t *jwt.Token) (jwtKey interface{}, err error) {
-		return jwtKey, err
+		return key, nil
 	})
 
 	if err != nil {
-		if errors.Is(err, jwt.ErrSignatureInvalid) {
-			return nil, errors.New("invalid token signatur")
-		}
-		return nil, err
+		return nil, errors.New("token is not valid")
 	}
 
-	if !token.Valid {
-		return nil, errors.New("invalid token")
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok || !token.Valid {
+		return nil, errors.New("token is not valid")
 	}
 
 	return claims, nil
