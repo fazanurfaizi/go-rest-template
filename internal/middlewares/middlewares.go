@@ -11,6 +11,7 @@ var Module = fx.Options(
 	fx.Provide(NewRateLimitMiddleware),
 	fx.Provide(NewJsonMiddleware),
 	fx.Provide(NewCsrfMiddleware),
+	fx.Provide(NewSanitizeMiddleware),
 	fx.Provide(NewMiddlewares),
 )
 
@@ -24,11 +25,13 @@ func NewMiddlewares(
 	jsonMiddleware *JsonMiddleware,
 	rateLimitMiddleware *RateLimitMiddleware,
 	csrfMiddleware *CsrfMiddleware,
+	sanitizeMiddleware *SanitizeMiddleware,
 ) Middlewares {
 	return Middlewares{
 		jsonMiddleware,
 		rateLimitMiddleware,
 		csrfMiddleware,
+		sanitizeMiddleware,
 	}
 }
 
