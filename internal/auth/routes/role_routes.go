@@ -13,7 +13,6 @@ type RoleRoutes struct {
 	handler handlers.RoleHandler
 	// authMiddleware       middlewares.AuthMiddleware
 	PaginationMiddleware middlewares.PaginationMiddleware
-	rateLimitMiddleware  middlewares.RateLimitMiddleware
 }
 
 func NewRoleRoutes(
@@ -22,7 +21,6 @@ func NewRoleRoutes(
 	handler handlers.RoleHandler,
 	// authMiddleware middlewares.AuthMiddleware,
 	pagination middlewares.PaginationMiddleware,
-	rateLimitMiddleware middlewares.RateLimitMiddleware,
 ) *RoleRoutes {
 	return &RoleRoutes{
 		logger:  logger,
@@ -30,14 +28,13 @@ func NewRoleRoutes(
 		handler: handler,
 		// authMiddleware:       authMiddleware,
 		PaginationMiddleware: pagination,
-		rateLimitMiddleware:  rateLimitMiddleware,
 	}
 }
 
 func (r *RoleRoutes) Setup() {
 	r.logger.Info("Setting up roles routes")
 
-	api := r.router.Group("/api").Use(r.rateLimitMiddleware.Handle())
+	api := r.router.Group("/api")
 
 	api.GET("/roles", r.PaginationMiddleware.Handle(), r.handler.Index)
 	api.GET("/roles/:id", r.handler.Show)

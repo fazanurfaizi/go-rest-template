@@ -4,8 +4,8 @@ import "github.com/gin-gonic/gin"
 
 type JsonMiddleware struct{}
 
-func NewJsonMiddleware() JsonMiddleware {
-	return JsonMiddleware{}
+func NewJsonMiddleware() *JsonMiddleware {
+	return &JsonMiddleware{}
 }
 
 func (p JsonMiddleware) Handle() gin.HandlerFunc {

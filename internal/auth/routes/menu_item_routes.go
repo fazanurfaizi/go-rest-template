@@ -13,7 +13,6 @@ type MenuItemRoutes struct {
 	handler handlers.MenuItemHandler
 	// authMiddleware       middlewares.AuthMiddleware
 	PaginationMiddleware middlewares.PaginationMiddleware
-	rateLimitMiddleware  middlewares.RateLimitMiddleware
 }
 
 func NewMenuItemRoutes(
@@ -22,7 +21,6 @@ func NewMenuItemRoutes(
 	handler handlers.MenuItemHandler,
 	// authMiddleware middlewares.AuthMiddleware,
 	pagination middlewares.PaginationMiddleware,
-	rateLimitMiddleware middlewares.RateLimitMiddleware,
 ) *MenuItemRoutes {
 	return &MenuItemRoutes{
 		logger:  logger,
@@ -30,14 +28,13 @@ func NewMenuItemRoutes(
 		handler: handler,
 		// authMiddleware:       authMiddleware,
 		PaginationMiddleware: pagination,
-		rateLimitMiddleware:  rateLimitMiddleware,
 	}
 }
 
 func (r *MenuItemRoutes) Setup() {
 	r.logger.Info("Setting up menu item routes")
 
-	api := r.router.Group("/api").Use(r.rateLimitMiddleware.Handle())
+	api := r.router.Group("/api")
 
 	api.GET("/menu-items", r.PaginationMiddleware.Handle(), r.handler.Index)
 	api.GET("/menu-items/:id", r.handler.Show)

@@ -13,7 +13,6 @@ type MasterMenuRoutes struct {
 	handler handlers.MasterMenuHandler
 	// authMiddleware       middlewares.AuthMiddleware
 	PaginationMiddleware  middlewares.PaginationMiddleware
-	rateLimitMiddleware   middlewares.RateLimitMiddleware
 	transactionMiddleware middlewares.DBTransactionMiddleware
 }
 
@@ -23,7 +22,6 @@ func NewMasterMenuRoutes(
 	handler handlers.MasterMenuHandler,
 	// authMiddleware middlewares.AuthMiddleware,
 	pagination middlewares.PaginationMiddleware,
-	rateLimitMiddleware middlewares.RateLimitMiddleware,
 	transactionMiddleware middlewares.DBTransactionMiddleware,
 ) *MasterMenuRoutes {
 	return &MasterMenuRoutes{
@@ -32,7 +30,6 @@ func NewMasterMenuRoutes(
 		handler: handler,
 		// authMiddleware:       authMiddleware,
 		PaginationMiddleware:  pagination,
-		rateLimitMiddleware:   rateLimitMiddleware,
 		transactionMiddleware: transactionMiddleware,
 	}
 }
@@ -40,13 +37,11 @@ func NewMasterMenuRoutes(
 func (r *MasterMenuRoutes) Setup() {
 	r.logger.Info("Setting up master menu routes")
 
-	api := r.router.Group("/api").
-		Use(r.rateLimitMiddleware.Handle()).
-		Use(r.transactionMiddleware.Handle())
+	api := r.router.Group("/api")
 
 	api.GET("/master-menus", r.PaginationMiddleware.Handle(), r.handler.Index)
 	api.GET("/master-menus/:id", r.handler.Show)
-	api.POST("/master-menus", r.handler.Create)
-	api.PUT("/master-menus/:id", r.handler.Update)
+	api.POST("/master-menus", r.transactionMiddleware.Handle(), r.handler.Create)
+	api.PUT("/master-menus/:id", r.transactionMiddleware.Handle(), r.handler.Update)
 	api.DELETE("/master-menus/:id", r.handler.Delete)
 }

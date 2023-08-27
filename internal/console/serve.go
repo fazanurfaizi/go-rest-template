@@ -38,7 +38,7 @@ func (s *ServeCommand) Run() command.CommandRunner {
 		loc, _ := time.LoadLocation("Asia/Jakarta")
 		time.Local = loc
 
-		middleware.Setup()
+		middleware.Handle()
 		route.Setup()
 		// seeds.Setup()
 

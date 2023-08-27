@@ -13,7 +13,6 @@ type PermissionRoutes struct {
 	handler handlers.PermissionHandler
 	// authMiddleware       middlewares.AuthMiddleware
 	PaginationMiddleware middlewares.PaginationMiddleware
-	rateLimitMiddleware  middlewares.RateLimitMiddleware
 }
 
 func NewPermissionRoutes(
@@ -22,7 +21,6 @@ func NewPermissionRoutes(
 	handler handlers.PermissionHandler,
 	// authMiddleware middlewares.AuthMiddleware,
 	pagination middlewares.PaginationMiddleware,
-	rateLimitMiddleware middlewares.RateLimitMiddleware,
 ) *PermissionRoutes {
 	return &PermissionRoutes{
 		logger:  logger,
@@ -30,14 +28,13 @@ func NewPermissionRoutes(
 		handler: handler,
 		// authMiddleware:       authMiddleware,
 		PaginationMiddleware: pagination,
-		rateLimitMiddleware:  rateLimitMiddleware,
 	}
 }
 
 func (r *PermissionRoutes) Setup() {
 	r.logger.Info("Setting up permission routes")
 
-	api := r.router.Group("/api").Use(r.rateLimitMiddleware.Handle())
+	api := r.router.Group("/api")
 
 	api.GET("/permissions", r.PaginationMiddleware.Handle(), r.handler.Index)
 	api.GET("/permissions/:id", r.handler.Show)
