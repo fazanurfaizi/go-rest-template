@@ -9,16 +9,24 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-type MenuItemRepository struct {
+type MenuItemRepository interface {
+	FindAll(*gin.Context) ([]models.MenuItem, int64)
+	FindById(uint) (models.MenuItem, error)
+	Create(*models.MenuItem) (models.MenuItem, error)
+	Update(uint, *models.MenuItem) (models.MenuItem, error)
+	Delete(uint) error
+}
+
+type menuItemRepository struct {
 	postgres.Database
 	logger logger.Logger
 }
 
 func NewMenuItemRepository(db postgres.Database, logger logger.Logger) MenuItemRepository {
-	return MenuItemRepository{db, logger}
+	return &menuItemRepository{db, logger}
 }
 
-func (r MenuItemRepository) FindAll(ctx *gin.Context) ([]models.MenuItem, int64) {
+func (r *menuItemRepository) FindAll(ctx *gin.Context) ([]models.MenuItem, int64) {
 	var menuItems []models.MenuItem
 	var count int64
 
@@ -32,7 +40,7 @@ func (r MenuItemRepository) FindAll(ctx *gin.Context) ([]models.MenuItem, int64)
 	return menuItems, count
 }
 
-func (r MenuItemRepository) FindById(id uint) (menuItem models.MenuItem, err error) {
+func (r *menuItemRepository) FindById(id uint) (menuItem models.MenuItem, err error) {
 	err = r.Model(menuItem).Where("id = ?", id).First(&menuItem).Error
 	if err != nil {
 		return models.MenuItem{}, err
@@ -40,7 +48,7 @@ func (r MenuItemRepository) FindById(id uint) (menuItem models.MenuItem, err err
 	return menuItem, nil
 }
 
-func (r MenuItemRepository) Create(menuItem *models.MenuItem) (models.MenuItem, error) {
+func (r *menuItemRepository) Create(menuItem *models.MenuItem) (models.MenuItem, error) {
 	err := r.Model(menuItem).Save(&menuItem).Error
 	if err != nil {
 		return models.MenuItem{}, err
@@ -49,7 +57,7 @@ func (r MenuItemRepository) Create(menuItem *models.MenuItem) (models.MenuItem, 
 	return *menuItem, nil
 }
 
-func (r MenuItemRepository) Update(id uint, menuItem *models.MenuItem) (models.MenuItem, error) {
+func (r *menuItemRepository) Update(id uint, menuItem *models.MenuItem) (models.MenuItem, error) {
 	var updatedMenuItem = models.MenuItem{}
 	err := r.Model(&updatedMenuItem).Clauses(clause.Returning{}).Where("id = ?", id).First(&menuItem).Updates(&menuItem).Error
 	if err != nil {
@@ -59,7 +67,7 @@ func (r MenuItemRepository) Update(id uint, menuItem *models.MenuItem) (models.M
 	return updatedMenuItem, nil
 }
 
-func (r MenuItemRepository) Delete(id uint) error {
+func (r *menuItemRepository) Delete(id uint) error {
 	var menuItem = models.MenuItem{}
 	err := r.Model(menuItem).Where("id = ?", id).First(&menuItem).Delete(&menuItem).Error
 	if err != nil {
