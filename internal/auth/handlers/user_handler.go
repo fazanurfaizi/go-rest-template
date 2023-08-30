@@ -21,11 +21,11 @@ type UserHandler interface {
 }
 
 type userHandler struct {
-	service *services.UserService
+	service services.UserService
 	logger  logger.Logger
 }
 
-func NewUserHandler(service *services.UserService, logger logger.Logger) UserHandler {
+func NewUserHandler(service services.UserService, logger logger.Logger) UserHandler {
 	return &userHandler{
 		service: service,
 		logger:  logger,

@@ -13,21 +13,29 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type UserService struct {
+type UserService interface {
+	FindAll(*gin.Context) ([]dto.UserResponse, int64)
+	FindById(uint) (dto.UserResponse, errors.RestErr)
+	Create(dto.CreateUserRequest, multipart.File) (dto.UserResponse, errors.RestErr)
+	Update(uint, dto.UpdateUserRequest, multipart.File) (dto.UserResponse, errors.RestErr)
+	Delete(uint) errors.RestErr
+}
+
+type userService struct {
 	logger      logger.Logger
 	repository  repositories.UserRepository
 	fileStorage storage.FileStorage
 }
 
-func NewUserService(logger logger.Logger, repository repositories.UserRepository, fileStorage storage.FileStorage) *UserService {
-	return &UserService{
+func NewUserService(logger logger.Logger, repository repositories.UserRepository, fileStorage storage.FileStorage) UserService {
+	return &userService{
 		logger:      logger,
 		repository:  repository,
 		fileStorage: fileStorage,
 	}
 }
 
-func (s UserService) FindAll(ctx *gin.Context) ([]dto.UserResponse, int64) {
+func (s *userService) FindAll(ctx *gin.Context) ([]dto.UserResponse, int64) {
 	var result = make([]dto.UserResponse, 0)
 	users, total := s.repository.FindAll(ctx)
 	for _, user := range users {
@@ -38,17 +46,17 @@ func (s UserService) FindAll(ctx *gin.Context) ([]dto.UserResponse, int64) {
 	return result, total
 }
 
-func (s UserService) FindById(id uint) (dto.UserResponse, error) {
+func (s *userService) FindById(id uint) (dto.UserResponse, errors.RestErr) {
 	user, err := s.repository.FindById(id)
 	if err != nil {
-		return dto.UserResponse{}, err
+		return dto.UserResponse{}, errors.NewNotFoundError(err.Error())
 	}
 
 	avatarUrl, _ := s.fileStorage.GetFile(user.Avatar)
 	return dto.MappingUserResponse(user, avatarUrl), nil
 }
 
-func (s UserService) Create(request dto.CreateUserRequest, file multipart.File) (dto.UserResponse, errors.RestErr) {
+func (s *userService) Create(request dto.CreateUserRequest, file multipart.File) (dto.UserResponse, errors.RestErr) {
 	user := models.User{
 		Name:        request.Name,
 		Email:       request.Email,
@@ -84,7 +92,7 @@ func (s UserService) Create(request dto.CreateUserRequest, file multipart.File) 
 	return dto.MappingUserResponse(createdUser, avatarUrl), nil
 }
 
-func (s UserService) Update(id uint, request dto.UpdateUserRequest, file multipart.File) (dto.UserResponse, errors.RestErr) {
+func (s *userService) Update(id uint, request dto.UpdateUserRequest, file multipart.File) (dto.UserResponse, errors.RestErr) {
 	user := models.User{
 		Name:        request.Name,
 		Email:       request.Email,
@@ -123,7 +131,7 @@ func (s UserService) Update(id uint, request dto.UpdateUserRequest, file multipa
 	return dto.MappingUserResponse(updatedUser, avatarUrl), nil
 }
 
-func (s UserService) Delete(id uint) errors.RestErr {
+func (s *userService) Delete(id uint) errors.RestErr {
 	err := s.repository.Delete(id)
 	if err != nil {
 		return errors.NewInternalServerError(err.Error())
