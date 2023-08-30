@@ -9,19 +9,27 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type RoleService struct {
+type RoleService interface {
+	FindAll(*gin.Context) ([]dto.RoleResponse, int64)
+	FindById(uint) (dto.RoleResponse, errors.RestErr)
+	Create(dto.CreateRoleRequest) (dto.RoleResponse, errors.RestErr)
+	Update(uint, dto.UpdateRoleRequest) (dto.RoleResponse, errors.RestErr)
+	Delete(uint) errors.RestErr
+}
+
+type roleService struct {
 	logger     logger.Logger
 	repository repositories.RoleRepository
 }
 
-func NewRoleService(logger logger.Logger, repository repositories.RoleRepository) *RoleService {
-	return &RoleService{
+func NewRoleService(logger logger.Logger, repository repositories.RoleRepository) RoleService {
+	return &roleService{
 		logger:     logger,
 		repository: repository,
 	}
 }
 
-func (s RoleService) FindAll(ctx *gin.Context) ([]dto.RoleResponse, int64) {
+func (s *roleService) FindAll(ctx *gin.Context) ([]dto.RoleResponse, int64) {
 	var result = make([]dto.RoleResponse, 0)
 	roles, total := s.repository.FindAll(ctx)
 	for _, role := range roles {
@@ -31,7 +39,7 @@ func (s RoleService) FindAll(ctx *gin.Context) ([]dto.RoleResponse, int64) {
 	return result, total
 }
 
-func (s RoleService) FindById(id uint) (dto.RoleResponse, errors.RestErr) {
+func (s *roleService) FindById(id uint) (dto.RoleResponse, errors.RestErr) {
 	role, err := s.repository.FindById(id)
 	if err != nil {
 		return dto.RoleResponse{}, errors.NewNotFoundError(err.Error())
@@ -40,8 +48,7 @@ func (s RoleService) FindById(id uint) (dto.RoleResponse, errors.RestErr) {
 	return dto.MappingRoleResponse(role), nil
 }
 
-// Create implements RoleService.
-func (s *RoleService) Create(request dto.CreateRoleRequest) (dto.RoleResponse, errors.RestErr) {
+func (s *roleService) Create(request dto.CreateRoleRequest) (dto.RoleResponse, errors.RestErr) {
 	var permissions []models.Permission
 	if len(request.Permissions) > 0 {
 		for _, v := range request.Permissions {
@@ -63,8 +70,7 @@ func (s *RoleService) Create(request dto.CreateRoleRequest) (dto.RoleResponse, e
 	return dto.MappingRoleResponse(createdRole), nil
 }
 
-// Update implements RoleService.
-func (s *RoleService) Update(id uint, request dto.UpdateRoleRequest) (dto.RoleResponse, errors.RestErr) {
+func (s *roleService) Update(id uint, request dto.UpdateRoleRequest) (dto.RoleResponse, errors.RestErr) {
 	var permissions []models.Permission
 	if len(request.Permissions) > 0 {
 		for _, v := range request.Permissions {
@@ -87,7 +93,7 @@ func (s *RoleService) Update(id uint, request dto.UpdateRoleRequest) (dto.RoleRe
 }
 
 // Delete implements RoleService.
-func (s *RoleService) Delete(id uint) errors.RestErr {
+func (s *roleService) Delete(id uint) errors.RestErr {
 	err := s.repository.Delete(id)
 	if err != nil {
 		return errors.NewInternalServerError(err.Error())

@@ -21,11 +21,11 @@ type RoleHandler interface {
 }
 
 type roleHandler struct {
-	service *services.RoleService
+	service services.RoleService
 	logger  logger.Logger
 }
 
-func NewRoleHandler(service *services.RoleService, logger logger.Logger) RoleHandler {
+func NewRoleHandler(service services.RoleService, logger logger.Logger) RoleHandler {
 	return &roleHandler{
 		service: service,
 		logger:  logger,
