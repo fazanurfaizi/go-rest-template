@@ -12,7 +12,7 @@ type MenuItemRoutes struct {
 	router  router.Router
 	handler handlers.MenuItemHandler
 	// authMiddleware       middlewares.AuthMiddleware
-	PaginationMiddleware middlewares.PaginationMiddleware
+	PaginationMiddleware *middlewares.PaginationMiddleware
 }
 
 func NewMenuItemRoutes(
@@ -20,7 +20,7 @@ func NewMenuItemRoutes(
 	router router.Router,
 	handler handlers.MenuItemHandler,
 	// authMiddleware middlewares.AuthMiddleware,
-	pagination middlewares.PaginationMiddleware,
+	pagination *middlewares.PaginationMiddleware,
 ) *MenuItemRoutes {
 	return &MenuItemRoutes{
 		logger:  logger,

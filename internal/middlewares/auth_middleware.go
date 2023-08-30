@@ -18,11 +18,17 @@ type AuthMiddleware struct {
 	logger logger.Logger
 }
 
-func NewAuthMiddleware(config *config.Config, logger logger.Logger) *AuthMiddleware {
-	return &AuthMiddleware{config: config, logger: logger}
+func NewAuthMiddleware(
+	config *config.Config,
+	logger logger.Logger,
+) *AuthMiddleware {
+	return &AuthMiddleware{
+		config: config,
+		logger: logger,
+	}
 }
 
-func (m AuthMiddleware) Handle() gin.HandlerFunc {
+func (m *AuthMiddleware) Handle() gin.HandlerFunc {
 	privateKey, err := os.ReadFile("ssl/id_rsa")
 	if err != nil {
 		log.Fatalln(err)

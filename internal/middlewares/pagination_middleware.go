@@ -12,11 +12,11 @@ type PaginationMiddleware struct {
 	logger logger.Logger
 }
 
-func NewPaginationMiddleware(logger logger.Logger) PaginationMiddleware {
-	return PaginationMiddleware{logger: logger}
+func NewPaginationMiddleware(logger logger.Logger) *PaginationMiddleware {
+	return &PaginationMiddleware{logger: logger}
 }
 
-func (p PaginationMiddleware) Handle() gin.HandlerFunc {
+func (p *PaginationMiddleware) Handle() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		p.logger.Info("Setting up pagination middleware")
 

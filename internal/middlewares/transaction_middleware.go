@@ -18,14 +18,14 @@ type DBTransactionMiddleware struct {
 func NewDBTransactionMiddleware(
 	logger logger.Logger,
 	db postgres.Database,
-) DBTransactionMiddleware {
-	return DBTransactionMiddleware{
+) *DBTransactionMiddleware {
+	return &DBTransactionMiddleware{
 		logger: logger,
 		db:     db,
 	}
 }
 
-func (m DBTransactionMiddleware) Handle() gin.HandlerFunc {
+func (m *DBTransactionMiddleware) Handle() gin.HandlerFunc {
 	m.logger.Info("Setting up database transaction middleware")
 
 	return func(ctx *gin.Context) {

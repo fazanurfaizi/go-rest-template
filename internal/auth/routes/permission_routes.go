@@ -12,7 +12,7 @@ type PermissionRoutes struct {
 	router  router.Router
 	handler handlers.PermissionHandler
 	// authMiddleware       middlewares.AuthMiddleware
-	PaginationMiddleware middlewares.PaginationMiddleware
+	PaginationMiddleware *middlewares.PaginationMiddleware
 }
 
 func NewPermissionRoutes(
@@ -20,7 +20,7 @@ func NewPermissionRoutes(
 	router router.Router,
 	handler handlers.PermissionHandler,
 	// authMiddleware middlewares.AuthMiddleware,
-	pagination middlewares.PaginationMiddleware,
+	pagination *middlewares.PaginationMiddleware,
 ) *PermissionRoutes {
 	return &PermissionRoutes{
 		logger:  logger,

@@ -12,7 +12,7 @@ type RoleRoutes struct {
 	router  router.Router
 	handler handlers.RoleHandler
 	// authMiddleware       middlewares.AuthMiddleware
-	PaginationMiddleware middlewares.PaginationMiddleware
+	PaginationMiddleware *middlewares.PaginationMiddleware
 }
 
 func NewRoleRoutes(
@@ -20,7 +20,7 @@ func NewRoleRoutes(
 	router router.Router,
 	handler handlers.RoleHandler,
 	// authMiddleware middlewares.AuthMiddleware,
-	pagination middlewares.PaginationMiddleware,
+	pagination *middlewares.PaginationMiddleware,
 ) *RoleRoutes {
 	return &RoleRoutes{
 		logger:  logger,

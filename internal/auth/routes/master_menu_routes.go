@@ -8,27 +8,27 @@ import (
 )
 
 type MasterMenuRoutes struct {
-	logger  logger.Logger
-	router  router.Router
-	handler handlers.MasterMenuHandler
-	// authMiddleware       middlewares.AuthMiddleware
-	PaginationMiddleware  middlewares.PaginationMiddleware
-	transactionMiddleware middlewares.DBTransactionMiddleware
+	logger                logger.Logger
+	router                router.Router
+	handler               handlers.MasterMenuHandler
+	authMiddleware        *middlewares.AuthMiddleware
+	PaginationMiddleware  *middlewares.PaginationMiddleware
+	transactionMiddleware *middlewares.DBTransactionMiddleware
 }
 
 func NewMasterMenuRoutes(
 	logger logger.Logger,
 	router router.Router,
 	handler handlers.MasterMenuHandler,
-	// authMiddleware middlewares.AuthMiddleware,
-	pagination middlewares.PaginationMiddleware,
-	transactionMiddleware middlewares.DBTransactionMiddleware,
+	authMiddleware *middlewares.AuthMiddleware,
+	pagination *middlewares.PaginationMiddleware,
+	transactionMiddleware *middlewares.DBTransactionMiddleware,
 ) *MasterMenuRoutes {
 	return &MasterMenuRoutes{
-		logger:  logger,
-		router:  router,
-		handler: handler,
-		// authMiddleware:       authMiddleware,
+		logger:                logger,
+		router:                router,
+		handler:               handler,
+		authMiddleware:        authMiddleware,
 		PaginationMiddleware:  pagination,
 		transactionMiddleware: transactionMiddleware,
 	}

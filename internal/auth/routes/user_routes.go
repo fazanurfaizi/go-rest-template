@@ -12,8 +12,8 @@ type UserRoutes struct {
 	router                router.Router
 	handler               handlers.UserHandler
 	authMiddleware        *middlewares.AuthMiddleware
-	PaginationMiddleware  middlewares.PaginationMiddleware
-	transactionMiddleware middlewares.DBTransactionMiddleware
+	PaginationMiddleware  *middlewares.PaginationMiddleware
+	transactionMiddleware *middlewares.DBTransactionMiddleware
 }
 
 func NewUserRoutes(
@@ -21,8 +21,8 @@ func NewUserRoutes(
 	router router.Router,
 	handler handlers.UserHandler,
 	authMiddleware *middlewares.AuthMiddleware,
-	pagination middlewares.PaginationMiddleware,
-	transactionMiddleware middlewares.DBTransactionMiddleware,
+	pagination *middlewares.PaginationMiddleware,
+	transactionMiddleware *middlewares.DBTransactionMiddleware,
 ) *UserRoutes {
 	return &UserRoutes{
 		logger:                logger,
