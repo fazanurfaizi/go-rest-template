@@ -9,19 +9,27 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type PermissionService struct {
+type PermissionService interface {
+	FindAll(*gin.Context) ([]dto.PermissionResponse, int64)
+	FindById(uint) (dto.PermissionResponse, errors.RestErr)
+	Create(dto.CreatePermissionRequest) (dto.PermissionResponse, errors.RestErr)
+	Update(uint, dto.UpdatePermissionRequest) (dto.PermissionResponse, errors.RestErr)
+	Delete(uint) errors.RestErr
+}
+
+type permissionService struct {
 	logger     logger.Logger
 	repository repositories.PermissionRepository
 }
 
-func NewPermissionService(logger logger.Logger, repository repositories.PermissionRepository) *PermissionService {
-	return &PermissionService{
+func NewPermissionService(logger logger.Logger, repository repositories.PermissionRepository) PermissionService {
+	return &permissionService{
 		logger:     logger,
 		repository: repository,
 	}
 }
 
-func (s PermissionService) FindAll(ctx *gin.Context) ([]dto.PermissionResponse, int64) {
+func (s *permissionService) FindAll(ctx *gin.Context) ([]dto.PermissionResponse, int64) {
 	var result = make([]dto.PermissionResponse, 0)
 	permissions, total := s.repository.FindAll(ctx)
 	for _, permission := range permissions {
@@ -31,7 +39,7 @@ func (s PermissionService) FindAll(ctx *gin.Context) ([]dto.PermissionResponse, 
 	return result, total
 }
 
-func (s PermissionService) FindById(id uint) (dto.PermissionResponse, errors.RestErr) {
+func (s *permissionService) FindById(id uint) (dto.PermissionResponse, errors.RestErr) {
 	permission, err := s.repository.FindById(id)
 	if err != nil {
 		return dto.PermissionResponse{}, errors.NewNotFoundError(err.Error())
@@ -40,7 +48,7 @@ func (s PermissionService) FindById(id uint) (dto.PermissionResponse, errors.Res
 	return dto.MappingPermissionResponse(permission), nil
 }
 
-func (s PermissionService) Create(request dto.CreatePermissionRequest) (dto.PermissionResponse, errors.RestErr) {
+func (s *permissionService) Create(request dto.CreatePermissionRequest) (dto.PermissionResponse, errors.RestErr) {
 	permission := models.Permission{
 		Name: request.Name,
 	}
@@ -53,7 +61,7 @@ func (s PermissionService) Create(request dto.CreatePermissionRequest) (dto.Perm
 	return dto.MappingPermissionResponse(createdPermission), nil
 }
 
-func (s PermissionService) Update(id uint, request dto.UpdatePermissionRequest) (dto.PermissionResponse, errors.RestErr) {
+func (s *permissionService) Update(id uint, request dto.UpdatePermissionRequest) (dto.PermissionResponse, errors.RestErr) {
 	permission := models.Permission{
 		Name: request.Name,
 	}
@@ -66,7 +74,7 @@ func (s PermissionService) Update(id uint, request dto.UpdatePermissionRequest) 
 	return dto.MappingPermissionResponse(updatedPermission), nil
 }
 
-func (s PermissionService) Delete(id uint) errors.RestErr {
+func (s *permissionService) Delete(id uint) errors.RestErr {
 	err := s.repository.Delete(id)
 	if err != nil {
 		return errors.NewInternalServerError(err.Error())

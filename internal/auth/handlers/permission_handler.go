@@ -21,11 +21,11 @@ type PermissionHandler interface {
 }
 
 type permissionHandler struct {
-	service *services.PermissionService
+	service services.PermissionService
 	logger  logger.Logger
 }
 
-func NewPermissionHandler(service *services.PermissionService, logger logger.Logger) PermissionHandler {
+func NewPermissionHandler(service services.PermissionService, logger logger.Logger) PermissionHandler {
 	return &permissionHandler{
 		service: service,
 		logger:  logger,
