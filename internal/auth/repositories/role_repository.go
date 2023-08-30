@@ -9,16 +9,24 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-type RoleRepository struct {
+type RoleRepository interface {
+	FindAll(*gin.Context) ([]models.Role, int64)
+	FindById(uint) (models.Role, error)
+	Create(*models.Role) (models.Role, error)
+	Update(uint, *models.Role) (models.Role, error)
+	Delete(uint) error
+}
+
+type roleRepository struct {
 	postgres.Database
 	logger logger.Logger
 }
 
 func NewRoleRepository(db postgres.Database, logger logger.Logger) RoleRepository {
-	return RoleRepository{db, logger}
+	return &roleRepository{db, logger}
 }
 
-func (r RoleRepository) FindAll(ctx *gin.Context) ([]models.Role, int64) {
+func (r *roleRepository) FindAll(ctx *gin.Context) ([]models.Role, int64) {
 	var roles []models.Role
 	var count int64
 
@@ -32,7 +40,7 @@ func (r RoleRepository) FindAll(ctx *gin.Context) ([]models.Role, int64) {
 	return roles, count
 }
 
-func (r RoleRepository) FindById(id uint) (role models.Role, err error) {
+func (r *roleRepository) FindById(id uint) (role models.Role, err error) {
 	err = r.Model(&role).Preload("Permissions").Where("id = ?", id).First(&role).Error
 	if err != nil {
 		return models.Role{}, err
@@ -41,7 +49,7 @@ func (r RoleRepository) FindById(id uint) (role models.Role, err error) {
 	return role, nil
 }
 
-func (r RoleRepository) Create(role *models.Role) (models.Role, error) {
+func (r *roleRepository) Create(role *models.Role) (models.Role, error) {
 	err := r.Model(role).Save(&role).Error
 	if err != nil {
 		return models.Role{}, err
@@ -50,7 +58,7 @@ func (r RoleRepository) Create(role *models.Role) (models.Role, error) {
 	return *role, nil
 }
 
-func (r RoleRepository) Update(id uint, role *models.Role) (models.Role, error) {
+func (r *roleRepository) Update(id uint, role *models.Role) (models.Role, error) {
 	var updatedRole = models.Role{}
 	err := r.Model(&updatedRole).
 		Clauses(clause.Returning{}).
@@ -70,7 +78,7 @@ func (r RoleRepository) Update(id uint, role *models.Role) (models.Role, error) 
 	return updatedRole, nil
 }
 
-func (r RoleRepository) Delete(id uint) error {
+func (r *roleRepository) Delete(id uint) error {
 	var role = models.Role{}
 
 	err := r.Model(role).Where("id = ?", id).First(&role).Delete(&role).Error
