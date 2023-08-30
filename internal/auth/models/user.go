@@ -1,7 +1,6 @@
 package models
 
 import (
-	"fmt"
 	"strings"
 	"time"
 
@@ -43,8 +42,6 @@ func (u *User) HashPassword() error {
 
 // Compare user password and payload
 func (u *User) ComparePassword(password string) (bool, error) {
-	fmt.Println(u.Password)
-	fmt.Println(password)
 	valid, err := utils.ValidateHash(u.Password, password)
 	if err != nil {
 		return false, err
