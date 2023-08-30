@@ -15,11 +15,11 @@ type AuthHandler interface {
 }
 
 type authHandler struct {
-	service *services.AuthService
+	service services.AuthService
 	logger  logger.Logger
 }
 
-func NewAuthHandler(service *services.AuthService, logger logger.Logger) AuthHandler {
+func NewAuthHandler(service services.AuthService, logger logger.Logger) AuthHandler {
 	return &authHandler{
 		service: service,
 		logger:  logger,

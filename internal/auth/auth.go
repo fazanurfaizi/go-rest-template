@@ -15,7 +15,6 @@ var AuthRepository = fx.Options(
 	fx.Provide(repositories.NewPermissionRepository),
 	fx.Provide(repositories.NewMenuItemRepository),
 	fx.Provide(repositories.NewMasterMenuRepository),
-	fx.Provide(repositories.NewAuthRepository),
 )
 
 // Auth Services Dependency Injection

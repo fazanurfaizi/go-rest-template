@@ -12,18 +12,23 @@ import (
 	"github.com/fazanurfaizi/go-rest-template/pkg/logger"
 )
 
-type AuthService struct {
-	config     *config.Config
-	logger     logger.Logger
-	repository repositories.AuthRepository
-	jwtService jwt.JWTService
+type AuthService interface {
+	Login(dto.LoginRequest) (dto.LoginResponse, errors.RestErr)
+	Register(dto.RegisterRequesst) (dto.RegisterResponse, errors.RestErr)
+}
+
+type authService struct {
+	config         *config.Config
+	logger         logger.Logger
+	userRepository repositories.UserRepository
+	jwtService     jwt.JWTService
 }
 
 func NewAuthService(
 	config *config.Config,
 	logger logger.Logger,
-	repository repositories.AuthRepository,
-) *AuthService {
+	userRepository repositories.UserRepository,
+) AuthService {
 	privateKey, err := os.ReadFile("ssl/id_rsa")
 	if err != nil {
 		log.Fatalln(err)
@@ -36,40 +41,43 @@ func NewAuthService(
 
 	jwtService := jwt.NewJWTService(config, privateKey, publicKey)
 
-	return &AuthService{
-		config:     config,
-		logger:     logger,
-		repository: repository,
-		jwtService: jwtService,
+	return &authService{
+		config:         config,
+		logger:         logger,
+		userRepository: userRepository,
+		jwtService:     jwtService,
 	}
 }
 
-func (s AuthService) Login(request dto.LoginRequest) (dto.LoginResponse, errors.RestErr) {
-	user, err := s.repository.FindByEmail(request.Email)
+func (s *authService) Login(request dto.LoginRequest) (dto.LoginResponse, errors.RestErr) {
+	var response = dto.LoginResponse{}
+
+	err := s.userRepository.Model(response.User).Where("email = ?", request.Email).First(&response.User).Error
 	if err != nil {
-		return dto.LoginResponse{}, errors.NewNotFoundError(err.Error())
+		return response, errors.NewNotFoundError(err.Error())
 	}
 
-	validated, err := user.ComparePassword(request.Password)
+	validated, err := response.User.ComparePassword(request.Password)
 	if err != nil {
-		return dto.LoginResponse{}, errors.NewNotFoundError(err.Error())
+		return response, errors.NewNotFoundError(err.Error())
 	}
 
 	if validated {
-		token, err := s.jwtService.GenerateToken(&jwt.JWTDto{
-			ID:    user.ID,
-			Email: user.Email,
+		response.Token, err = s.jwtService.GenerateToken(&jwt.JWTDto{
+			ID:    response.User.ID,
+			Email: response.User.Email,
 		})
 
 		if err != nil {
-			return dto.LoginResponse{}, errors.NewInternalServerError(err.Error())
+			return response, errors.NewInternalServerError(err.Error())
 		}
 
-		return dto.LoginResponse{
-			User:  user,
-			Token: token,
-		}, nil
+		return response, nil
 	}
 
-	return dto.LoginResponse{}, errors.NewInternalServerError(errors.ErrInvalidJWTToken)
+	return response, errors.NewInternalServerError(errors.ErrInvalidJWTToken)
+}
+
+func (s *authService) Register(request dto.RegisterRequesst) (dto.RegisterResponse, errors.RestErr) {
+	panic("Method not implemented!")
 }
