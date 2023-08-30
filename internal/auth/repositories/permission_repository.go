@@ -9,16 +9,24 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-type PermissionRepository struct {
+type PermissionRepository interface {
+	FindAll(*gin.Context) ([]models.Permission, int64)
+	FindById(uint) (models.Permission, error)
+	Create(*models.Permission) (models.Permission, error)
+	Update(uint, *models.Permission) (models.Permission, error)
+	Delete(uint) error
+}
+
+type permissionRepository struct {
 	postgres.Database
 	logger logger.Logger
 }
 
 func NewPermissionRepository(db postgres.Database, logger logger.Logger) PermissionRepository {
-	return PermissionRepository{db, logger}
+	return &permissionRepository{db, logger}
 }
 
-func (r PermissionRepository) FindAll(ctx *gin.Context) ([]models.Permission, int64) {
+func (r *permissionRepository) FindAll(ctx *gin.Context) ([]models.Permission, int64) {
 	var permissions []models.Permission
 	var count int64
 
@@ -32,7 +40,7 @@ func (r PermissionRepository) FindAll(ctx *gin.Context) ([]models.Permission, in
 	return permissions, count
 }
 
-func (r PermissionRepository) FindById(id uint) (permission models.Permission, err error) {
+func (r *permissionRepository) FindById(id uint) (permission models.Permission, err error) {
 	err = r.Model(permission).Where("id = ?", id).First(&permission).Error
 	if err != nil {
 		return models.Permission{}, err
@@ -40,7 +48,7 @@ func (r PermissionRepository) FindById(id uint) (permission models.Permission, e
 	return permission, nil
 }
 
-func (r PermissionRepository) Create(permission *models.Permission) (models.Permission, error) {
+func (r *permissionRepository) Create(permission *models.Permission) (models.Permission, error) {
 	err := r.Model(permission).Save(&permission).Error
 	if err != nil {
 		return models.Permission{}, err
@@ -49,7 +57,7 @@ func (r PermissionRepository) Create(permission *models.Permission) (models.Perm
 	return *permission, nil
 }
 
-func (r PermissionRepository) Update(id uint, permission *models.Permission) (models.Permission, error) {
+func (r *permissionRepository) Update(id uint, permission *models.Permission) (models.Permission, error) {
 	var updatedPermission = models.Permission{}
 	err := r.Model(&updatedPermission).Clauses(clause.Returning{}).Where("id = ?", id).First(&permission).Updates(&permission).Error
 	if err != nil {
@@ -59,7 +67,7 @@ func (r PermissionRepository) Update(id uint, permission *models.Permission) (mo
 	return updatedPermission, nil
 }
 
-func (r PermissionRepository) Delete(id uint) error {
+func (r *permissionRepository) Delete(id uint) error {
 	var permission = models.Permission{}
 	err := r.Model(permission).Where("id = ?", id).First(&permission).Delete(&permission).Error
 	if err != nil {
