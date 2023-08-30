@@ -21,11 +21,11 @@ type MenuItemHandler interface {
 }
 
 type menuItemHandler struct {
-	service *services.MenuItemService
+	service services.MenuItemService
 	logger  logger.Logger
 }
 
-func NewMenuItemHandler(service *services.MenuItemService, logger logger.Logger) MenuItemHandler {
+func NewMenuItemHandler(service services.MenuItemService, logger logger.Logger) MenuItemHandler {
 	return &menuItemHandler{
 		service: service,
 		logger:  logger,

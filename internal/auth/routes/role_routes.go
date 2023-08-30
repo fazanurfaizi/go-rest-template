@@ -8,10 +8,10 @@ import (
 )
 
 type RoleRoutes struct {
-	logger  logger.Logger
-	router  router.Router
-	handler handlers.RoleHandler
-	// authMiddleware       middlewares.AuthMiddleware
+	logger               logger.Logger
+	router               router.Router
+	handler              handlers.RoleHandler
+	authMiddleware       *middlewares.AuthMiddleware
 	PaginationMiddleware *middlewares.PaginationMiddleware
 }
 
@@ -19,14 +19,14 @@ func NewRoleRoutes(
 	logger logger.Logger,
 	router router.Router,
 	handler handlers.RoleHandler,
-	// authMiddleware middlewares.AuthMiddleware,
+	authMiddleware *middlewares.AuthMiddleware,
 	pagination *middlewares.PaginationMiddleware,
 ) *RoleRoutes {
 	return &RoleRoutes{
-		logger:  logger,
-		router:  router,
-		handler: handler,
-		// authMiddleware:       authMiddleware,
+		logger:               logger,
+		router:               router,
+		handler:              handler,
+		authMiddleware:       authMiddleware,
 		PaginationMiddleware: pagination,
 	}
 }
@@ -34,7 +34,7 @@ func NewRoleRoutes(
 func (r *RoleRoutes) Setup() {
 	r.logger.Info("Setting up roles routes")
 
-	api := r.router.Group("/api/auth")
+	api := r.router.Group("/api/auth").Use(r.authMiddleware.Handle())
 
 	api.GET("/roles", r.PaginationMiddleware.Handle(), r.handler.Index)
 	api.GET("/roles/:id", r.handler.Show)

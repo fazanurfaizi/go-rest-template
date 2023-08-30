@@ -9,19 +9,27 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type MenuItemService struct {
+type MenuItemService interface {
+	FindAll(*gin.Context) ([]dto.MenuItemResponse, int64)
+	FindById(uint) (dto.MenuItemResponse, errors.RestErr)
+	Create(dto.CreateMenuItemRequest) (dto.MenuItemResponse, errors.RestErr)
+	Update(uint, dto.UpdateMenuItemRequest) (dto.MenuItemResponse, errors.RestErr)
+	Delete(uint) errors.RestErr
+}
+
+type menuItemService struct {
 	logger     logger.Logger
 	repository repositories.MenuItemRepository
 }
 
-func NewMenuItemService(logger logger.Logger, repository repositories.MenuItemRepository) *MenuItemService {
-	return &MenuItemService{
+func NewMenuItemService(logger logger.Logger, repository repositories.MenuItemRepository) MenuItemService {
+	return &menuItemService{
 		logger:     logger,
 		repository: repository,
 	}
 }
 
-func (s MenuItemService) FindAll(ctx *gin.Context) ([]dto.MenuItemResponse, int64) {
+func (s *menuItemService) FindAll(ctx *gin.Context) ([]dto.MenuItemResponse, int64) {
 	var result = make([]dto.MenuItemResponse, 0)
 	menuItems, total := s.repository.FindAll(ctx)
 	for _, menuItem := range menuItems {
@@ -31,7 +39,7 @@ func (s MenuItemService) FindAll(ctx *gin.Context) ([]dto.MenuItemResponse, int6
 	return result, total
 }
 
-func (s MenuItemService) FindById(id uint) (dto.MenuItemResponse, errors.RestErr) {
+func (s *menuItemService) FindById(id uint) (dto.MenuItemResponse, errors.RestErr) {
 	menuItem, err := s.repository.FindById(id)
 	if err != nil {
 		return dto.MenuItemResponse{}, errors.NewNotFoundError(err.Error())
@@ -40,7 +48,7 @@ func (s MenuItemService) FindById(id uint) (dto.MenuItemResponse, errors.RestErr
 	return dto.MappingMenuItemResponse(menuItem), nil
 }
 
-func (s *MenuItemService) Create(request dto.CreateMenuItemRequest) (dto.MenuItemResponse, errors.RestErr) {
+func (s *menuItemService) Create(request dto.CreateMenuItemRequest) (dto.MenuItemResponse, errors.RestErr) {
 	menuItem := models.MenuItem{
 		Name: request.Name,
 		Slug: request.Slug,
@@ -56,7 +64,7 @@ func (s *MenuItemService) Create(request dto.CreateMenuItemRequest) (dto.MenuIte
 	return dto.MappingMenuItemResponse(createdMenuItem), nil
 }
 
-func (s *MenuItemService) Update(id uint, request dto.UpdateMenuItemRequest) (dto.MenuItemResponse, errors.RestErr) {
+func (s *menuItemService) Update(id uint, request dto.UpdateMenuItemRequest) (dto.MenuItemResponse, errors.RestErr) {
 	menuItem := models.MenuItem{
 		Name: request.Name,
 		Slug: request.Slug,
@@ -72,7 +80,7 @@ func (s *MenuItemService) Update(id uint, request dto.UpdateMenuItemRequest) (dt
 	return dto.MappingMenuItemResponse(updatedMenuItem), nil
 }
 
-func (s *MenuItemService) Delete(id uint) errors.RestErr {
+func (s *menuItemService) Delete(id uint) errors.RestErr {
 	err := s.repository.Delete(id)
 	if err != nil {
 		return errors.NewInternalServerError(err.Error())

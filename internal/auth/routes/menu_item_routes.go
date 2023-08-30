@@ -8,10 +8,10 @@ import (
 )
 
 type MenuItemRoutes struct {
-	logger  logger.Logger
-	router  router.Router
-	handler handlers.MenuItemHandler
-	// authMiddleware       middlewares.AuthMiddleware
+	logger               logger.Logger
+	router               router.Router
+	handler              handlers.MenuItemHandler
+	authMiddleware       *middlewares.AuthMiddleware
 	PaginationMiddleware *middlewares.PaginationMiddleware
 }
 
@@ -19,14 +19,14 @@ func NewMenuItemRoutes(
 	logger logger.Logger,
 	router router.Router,
 	handler handlers.MenuItemHandler,
-	// authMiddleware middlewares.AuthMiddleware,
+	authMiddleware *middlewares.AuthMiddleware,
 	pagination *middlewares.PaginationMiddleware,
 ) *MenuItemRoutes {
 	return &MenuItemRoutes{
-		logger:  logger,
-		router:  router,
-		handler: handler,
-		// authMiddleware:       authMiddleware,
+		logger:               logger,
+		router:               router,
+		handler:              handler,
+		authMiddleware:       authMiddleware,
 		PaginationMiddleware: pagination,
 	}
 }
@@ -34,7 +34,7 @@ func NewMenuItemRoutes(
 func (r *MenuItemRoutes) Setup() {
 	r.logger.Info("Setting up menu item routes")
 
-	api := r.router.Group("/api/auth")
+	api := r.router.Group("/api/auth").Use(r.authMiddleware.Handle())
 
 	api.GET("/menu-items", r.PaginationMiddleware.Handle(), r.handler.Index)
 	api.GET("/menu-items/:id", r.handler.Show)

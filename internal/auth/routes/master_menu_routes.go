@@ -37,7 +37,7 @@ func NewMasterMenuRoutes(
 func (r *MasterMenuRoutes) Setup() {
 	r.logger.Info("Setting up master menu routes")
 
-	api := r.router.Group("/api/auth")
+	api := r.router.Group("/api/auth").Use(r.authMiddleware.Handle())
 
 	api.GET("/master-menus", r.PaginationMiddleware.Handle(), r.handler.Index)
 	api.GET("/master-menus/:id", r.handler.Show)
