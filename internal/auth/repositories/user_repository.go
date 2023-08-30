@@ -9,16 +9,25 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-type UserRepository struct {
+type UserRepository interface {
+	FindAll(*gin.Context) ([]models.User, int64)
+	FindById(uint) (models.User, error)
+	FindByEmail(string) (models.User, error)
+	Create(*models.User) (models.User, error)
+	Update(uint, *models.User) (models.User, error)
+	Delete(uint) error
+}
+
+type userRepository struct {
 	postgres.Database
 	logger logger.Logger
 }
 
 func NewUserRepository(db postgres.Database, logger logger.Logger) UserRepository {
-	return UserRepository{db, logger}
+	return &userRepository{db, logger}
 }
 
-func (u UserRepository) FindAll(ctx *gin.Context) ([]models.User, int64) {
+func (u *userRepository) FindAll(ctx *gin.Context) ([]models.User, int64) {
 	var users []models.User
 	var count int64
 
@@ -32,7 +41,7 @@ func (u UserRepository) FindAll(ctx *gin.Context) ([]models.User, int64) {
 	return users, count
 }
 
-func (u UserRepository) FindById(id uint) (models.User, error) {
+func (u *userRepository) FindById(id uint) (models.User, error) {
 	var user = models.User{}
 	err := u.Model(user).Where("id = ?", id).First(&user).Error
 	if err != nil {
@@ -42,7 +51,17 @@ func (u UserRepository) FindById(id uint) (models.User, error) {
 	return user, nil
 }
 
-func (u UserRepository) Create(user *models.User) (models.User, error) {
+func (u *userRepository) FindByEmail(email string) (models.User, error) {
+	var user = models.User{}
+	err := u.Model(user).Where("email = ?", email).First(&user).Error
+	if err != nil {
+		return user, err
+	}
+
+	return user, nil
+}
+
+func (u *userRepository) Create(user *models.User) (models.User, error) {
 	err := u.Model(user).Save(&user).Error
 	if err != nil {
 		return models.User{}, err
@@ -51,7 +70,7 @@ func (u UserRepository) Create(user *models.User) (models.User, error) {
 	return *user, nil
 }
 
-func (u UserRepository) Update(id uint, user *models.User) (models.User, error) {
+func (u *userRepository) Update(id uint, user *models.User) (models.User, error) {
 	var updatedUser = models.User{}
 	err := u.Model(&updatedUser).Clauses(clause.Returning{}).Where("id = ?", id).First(&updatedUser).Updates(&user).Error
 	if err != nil {
@@ -61,7 +80,7 @@ func (u UserRepository) Update(id uint, user *models.User) (models.User, error) 
 	return updatedUser, nil
 }
 
-func (u UserRepository) Delete(id uint) error {
+func (u *userRepository) Delete(id uint) error {
 	var user = models.User{}
 	err := u.Model(user).Where("id = ?", id).First(&user).Delete(&user).Error
 	if err != nil {

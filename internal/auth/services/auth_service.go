@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/fazanurfaizi/go-rest-template/internal/auth/dto"
+	"github.com/fazanurfaizi/go-rest-template/internal/auth/models"
 	"github.com/fazanurfaizi/go-rest-template/internal/auth/repositories"
 	"github.com/fazanurfaizi/go-rest-template/pkg/config"
 	"github.com/fazanurfaizi/go-rest-template/pkg/errors"
@@ -51,21 +52,23 @@ func NewAuthService(
 
 func (s *authService) Login(request dto.LoginRequest) (dto.LoginResponse, errors.RestErr) {
 	var response = dto.LoginResponse{}
+	var user = models.User{}
 
-	err := s.userRepository.Model(response.User).Where("email = ?", request.Email).First(&response.User).Error
+	user, err := s.userRepository.FindByEmail(request.Email)
 	if err != nil {
 		return response, errors.NewNotFoundError(err.Error())
 	}
 
-	validated, err := response.User.ComparePassword(request.Password)
+	validated, err := user.ComparePassword(request.Password)
 	if err != nil {
 		return response, errors.NewNotFoundError(err.Error())
 	}
 
 	if validated {
+		response.User = user
 		response.Token, err = s.jwtService.GenerateToken(&jwt.JWTDto{
-			ID:    response.User.ID,
-			Email: response.User.Email,
+			ID:    user.ID,
+			Email: user.Email,
 		})
 
 		if err != nil {
