@@ -34,7 +34,7 @@ func NewRoleRoutes(
 func (r *RoleRoutes) Setup() {
 	r.logger.Info("Setting up roles routes")
 
-	api := r.router.Group("/api")
+	api := r.router.Group("/api/auth")
 
 	api.GET("/roles", r.PaginationMiddleware.Handle(), r.handler.Index)
 	api.GET("/roles/:id", r.handler.Show)

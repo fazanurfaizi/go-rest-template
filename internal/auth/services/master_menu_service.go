@@ -9,19 +9,27 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type MasterMenuService struct {
+type MasterMenuService interface {
+	FindAll(*gin.Context) ([]dto.MasterMenuResponse, int64)
+	FindById(uint) (dto.MasterMenuResponse, errors.RestErr)
+	Create(dto.CreateMasterMenuRequest) (dto.MasterMenuResponse, errors.RestErr)
+	Update(uint, dto.UpdateMasterMenuRequest) (dto.MasterMenuResponse, errors.RestErr)
+	Delete(uint) errors.RestErr
+}
+
+type masterMenuService struct {
 	logger     logger.Logger
 	repository repositories.MasterMenuRepository
 }
 
-func NewMasterMenuService(logger logger.Logger, repository repositories.MasterMenuRepository) *MasterMenuService {
-	return &MasterMenuService{
+func NewMasterMenuService(logger logger.Logger, repository repositories.MasterMenuRepository) MasterMenuService {
+	return &masterMenuService{
 		logger:     logger,
 		repository: repository,
 	}
 }
 
-func (s MasterMenuService) FindAll(ctx *gin.Context) ([]dto.MasterMenuResponse, int64) {
+func (s masterMenuService) FindAll(ctx *gin.Context) ([]dto.MasterMenuResponse, int64) {
 	var result = make([]dto.MasterMenuResponse, 0)
 	masterMenus, total := s.repository.FindAll(ctx)
 	for _, masterMenu := range masterMenus {
@@ -31,7 +39,7 @@ func (s MasterMenuService) FindAll(ctx *gin.Context) ([]dto.MasterMenuResponse, 
 	return result, total
 }
 
-func (s MasterMenuService) FindById(id uint) (dto.MasterMenuResponse, errors.RestErr) {
+func (s masterMenuService) FindById(id uint) (dto.MasterMenuResponse, errors.RestErr) {
 	masterMenu, err := s.repository.FindById(id)
 	if err != nil {
 		return dto.MasterMenuResponse{}, errors.NewNotFoundError(err.Error())
@@ -40,8 +48,7 @@ func (s MasterMenuService) FindById(id uint) (dto.MasterMenuResponse, errors.Res
 	return dto.MappingMasterMenuResponse(masterMenu), nil
 }
 
-// Create implements MasterMenuService.
-func (s *MasterMenuService) Create(request dto.CreateMasterMenuRequest) (dto.MasterMenuResponse, errors.RestErr) {
+func (s *masterMenuService) Create(request dto.CreateMasterMenuRequest) (dto.MasterMenuResponse, errors.RestErr) {
 	var menus []models.Menu
 	if len(request.Menus) > 0 {
 		for i, v := range request.Menus {
@@ -97,7 +104,7 @@ func (s *MasterMenuService) Create(request dto.CreateMasterMenuRequest) (dto.Mas
 }
 
 // Update implements MasterMenuService.
-func (s *MasterMenuService) Update(id uint, request dto.UpdateMasterMenuRequest) (dto.MasterMenuResponse, errors.RestErr) {
+func (s *masterMenuService) Update(id uint, request dto.UpdateMasterMenuRequest) (dto.MasterMenuResponse, errors.RestErr) {
 	var menus []models.Menu
 	if len(request.Menus) > 0 {
 		for i, v := range request.Menus {
@@ -155,8 +162,7 @@ func (s *MasterMenuService) Update(id uint, request dto.UpdateMasterMenuRequest)
 	return dto.MappingMasterMenuResponse(updatedMasterMenu), nil
 }
 
-// Delete implements MasterMenuService.
-func (s *MasterMenuService) Delete(id uint) errors.RestErr {
+func (s *masterMenuService) Delete(id uint) errors.RestErr {
 	err := s.repository.Delete(id)
 	if err != nil {
 		return errors.NewInternalServerError(err.Error())

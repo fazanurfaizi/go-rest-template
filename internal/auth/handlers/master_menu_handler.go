@@ -21,11 +21,11 @@ type MasterMenuHandler interface {
 }
 
 type masterMenuHandler struct {
-	service *services.MasterMenuService
+	service services.MasterMenuService
 	logger  logger.Logger
 }
 
-func NewMasterMenuHandler(service *services.MasterMenuService, logger logger.Logger) MasterMenuHandler {
+func NewMasterMenuHandler(service services.MasterMenuService, logger logger.Logger) MasterMenuHandler {
 	return &masterMenuHandler{
 		service: service,
 		logger:  logger,

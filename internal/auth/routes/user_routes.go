@@ -37,7 +37,7 @@ func NewUserRoutes(
 func (r *UserRoutes) Setup() {
 	r.logger.Info("Setting up user routes")
 
-	api := r.router.Group("/api").Use(r.authMiddleware.Handle())
+	api := r.router.Group("/api/auth").Use(r.authMiddleware.Handle())
 
 	r.router.MaxMultipartMemory = 8 << 20
 	api.GET("/users", r.PaginationMiddleware.Handle(), r.handler.Index)

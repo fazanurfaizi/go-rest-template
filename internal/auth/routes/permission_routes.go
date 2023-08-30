@@ -34,7 +34,7 @@ func NewPermissionRoutes(
 func (r *PermissionRoutes) Setup() {
 	r.logger.Info("Setting up permission routes")
 
-	api := r.router.Group("/api")
+	api := r.router.Group("/api/auth")
 
 	api.GET("/permissions", r.PaginationMiddleware.Handle(), r.handler.Index)
 	api.GET("/permissions/:id", r.handler.Show)

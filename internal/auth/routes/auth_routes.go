@@ -30,7 +30,7 @@ func NewAuthRoutes(
 func (r *AuthRoutes) Setup() {
 	r.logger.Info("Setting up auth routes")
 
-	api := r.router.Group("/api")
-	api.POST("/auth/login", r.handler.Login)
+	api := r.router.Group("/api/auth")
+	api.POST("/login", r.handler.Login)
 
 }

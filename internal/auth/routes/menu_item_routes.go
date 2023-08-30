@@ -34,7 +34,7 @@ func NewMenuItemRoutes(
 func (r *MenuItemRoutes) Setup() {
 	r.logger.Info("Setting up menu item routes")
 
-	api := r.router.Group("/api")
+	api := r.router.Group("/api/auth")
 
 	api.GET("/menu-items", r.PaginationMiddleware.Handle(), r.handler.Index)
 	api.GET("/menu-items/:id", r.handler.Show)
